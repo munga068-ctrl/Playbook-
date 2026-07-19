@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MMTrades — Framework Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg: #0a0c0f;
+    --panel: #12151a;
+    --panel-2: #171b21;
+    --line: #23272f;
+    --ink: #e9e6de;
+    --ink-dim: #8a8f98;
+    --gold: #c99a4a;
+    --gold-soft: rgba(201,154,74,0.14);
+    --win: #4caf7d;
+    --win-soft: rgba(76,175,125,0.12);
+    --loss: #d0625c;
+    --loss-soft: rgba(208,98,92,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    padding:28px 24px 60px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+  header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .brand{
+    font-family:'Fraunces',serif;
+    font-size:26px;
+    font-weight:500;
+    letter-spacing:0.2px;
+  }
+  .brand span{color:var(--gold);}
+  .meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--ink-dim);
+    text-align:right;
+  }
+  .summary-row{
+    display:flex;
+    gap:14px;
+    margin-bottom:26px;
+    flex-wrap:wrap;
+  }
+  .stat-pill{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 18px;
+    flex:1;
+    min-width:140px;
+  }
+  .stat-pill .label{
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--ink-dim);
+    margin-bottom:6px;
+  }
+  .stat-pill .value{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:22px;
+    font-weight:600;
+  }
+  .pos{color:var(--win);}
+  .neg{color:var(--loss);}
+
+  .section-title{
+    font-family:'Fraunces',serif;
+    font-size:15px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color:var(--ink-dim);
+    margin:34px 0 14px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(270px, 1fr));
+    gap:14px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 18px 14px;
+    position:relative;
+    overflow:hidden;
+    transition:border-color .15s ease;
+  }
+  .card:hover{border-color:#3a4049;}
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:10px;
+  }
+  .card-name{
+    font-family:'Fraunces',serif;
+    font-size:16px;
+    font-weight:500;
+    line-height:1.25;
+    max-width:70%;
+  }
+  .badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    padding:3px 8px;
+    border-radius:20px;
+    letter-spacing:0.5px;
+    white-space:nowrap;
+  }
+  .badge.win{background:var(--win-soft);color:var(--win);}
+  .badge.loss{background:var(--loss-soft);color:var(--loss);}
+  .badge.flat{background:var(--gold-soft);color:var(--gold);}
+
+  .card-metrics{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-top:8px;
+  }
+  .metric-label{font-size:10px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+  .metric-value{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;}
+
+  .card-foot{
+    display:flex;
+    justify-content:space-between;
+    margin-top:14px;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--ink-dim);
+  }
+  .card-foot b{color:var(--ink);font-weight:600;}
+
+  .spark{width:100%;height:36px;margin-top:10px;}
+
+  .chart-panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px 22px;
+  }
+  .chart-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:6px;
+  }
+  .chart-head h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:16px;
+    margin:0;
+  }
+  .chart-sub{font-size:11.5px;color:var(--ink-dim);margin-bottom:16px;}
+  #mainChart{max-height:380px;}
+
+  .footer-note{
+    margin-top:30px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--ink-dim);
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">MM<span>Trades</span> — Framework Ledger</div>
+    <div class="meta" id="metaLine">loading…</div>
+  </header>
+
+  <div class="summary-row" id="summaryRow"></div>
+
+  <div class="section-title">Playbooks</div>
+  <div class="grid" id="cardGrid"></div>
+
+  <div class="section-title">Framework PnL in Context</div>
+  <div class="chart-panel">
+    <div class="chart-head">
+      <h3>Cumulative P&amp;L by Framework</h3>
+    </div>
+    <div class="chart-sub">Running P&amp;L for each framework across every trade it appears in, plotted in trade sequence.</div>
+    <canvas id="mainChart"></canvas>
+  </div>
+
+  <div class="footer-note">Synced from Notion · data.json regenerated automatically</div>
+</div>
+
+<script>
+const PALETTE = ['#c99a4a','#4caf7d','#7fa8d4','#d0625c','#b98fce','#5fb8b0','#d4b45f','#8f97a3','#e08f5b','#6f9de0'];
+
+function fmt(n){
+  const s = n<0 ? '-' : '';
+  return s + '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function sparkline(canvas, series, color){
+  const ctx = canvas.getContext('2d');
+  new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: series.map(p=>p.date),
+      datasets:[{
+        data: series.map(p=>p.cum),
+        borderColor: color,
+        borderWidth: 1.6,
+        pointRadius: 0,
+        fill: true,
+        backgroundColor: color + '22',
+        tension: 0.25
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      animation:false,
+      scales:{x:{display:false},y:{display:false}},
+      plugins:{legend:{display:false},tooltip:{enabled:false}}
+    }
+  });
+}
+
+fetch('data.json?_=' + Date.now())
+  .then(r=>r.json())
+  .then(data=>{
+    document.getElementById('metaLine').textContent =
+      'Synced ' + new Date(data.generated_at).toLocaleString() + ' · ' + data.total_trades + ' trades';
+
+    const totalPositive = data.total_pnl >= 0;
+    const best = data.frameworks[0];
+    const worst = data.frameworks[data.frameworks.length-1];
+
+    document.getElementById('summaryRow').innerHTML = `
+      <div class="stat-pill">
+        <div class="label">Net P&amp;L (all frameworks)</div>
+        <div class="value ${totalPositive?'pos':'neg'}">${fmt(data.total_pnl)}</div>
+      </div>
+      <div class="stat-pill">
+        <div class="label">Trades Logged</div>
+        <div class="value">${data.total_trades}</div>
+      </div>
+      <div class="stat-pill">
+        <div class="label">Best Framework</div>
+        <div class="value pos">${best.name}</div>
+      </div>
+      <div class="stat-pill">
+        <div class="label">Weakest Framework</div>
+        <div class="value neg">${worst.name}</div>
+      </div>
+    `;
+
+    const grid = document.getElementById('cardGrid');
+    data.frameworks.forEach((fw, i) => {
+      const color = PALETTE[i % PALETTE.length];
+      const netPos = fw.net_pnl >= 0;
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-name">${fw.name}</div>
+          <div class="badge ${netPos?'win':'loss'}">${fw.trades} trade${fw.trades===1?'':'s'}</div>
+        </div>
+        <div class="card-metrics">
+          <div>
+            <div class="metric-label">Win Rate</div>
+            <div class="metric-value">${fw.win_rate}%</div>
+          </div>
+          <div style="text-align:right">
+            <div class="metric-label">Net P&amp;L</div>
+            <div class="metric-value ${netPos?'pos':'neg'}">${fmt(fw.net_pnl)}</div>
+          </div>
+        </div>
+        <canvas class="spark" id="spark-${i}"></canvas>
+        <div class="card-foot">
+          <span>PF <b>${fw.profit_factor}</b></span>
+          <span>Expectancy <b class="${fw.expectancy>=0?'pos':'neg'}">${fmt(fw.expectancy)}</b></span>
+          <span>Avg W/L <b>${fmt(fw.avg_win)} / ${fmt(-fw.avg_loss)}</b></span>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    // draw sparklines after DOM insert
+    data.frameworks.forEach((fw, i)=>{
+      const c = document.getElementById('spark-'+i);
+      if (c && fw.series.length) sparkline(c, fw.series, PALETTE[i % PALETTE.length]);
+    });
+
+    // main combined chart — union of dates
+    const allDates = [...new Set(data.frameworks.flatMap(f=>f.series.map(p=>p.date)))].sort();
+    const datasets = data.frameworks.map((fw,i)=>{
+      const map = Object.fromEntries(fw.series.map(p=>[p.date,p.cum]));
+      let last = null;
+      const vals = allDates.map(d=>{
+        if (map[d] !== undefined){ last = map[d]; return map[d]; }
+        return last;
+      });
+      const color = PALETTE[i % PALETTE.length];
+      return {
+        label: fw.name,
+        data: vals,
+        borderColor: color,
+        backgroundColor: color,
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.2,
+        spanGaps: true
+      };
+    });
+
+    new Chart(document.getElementById('mainChart').getContext('2d'), {
+      type:'line',
+      data:{ labels: allDates, datasets },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        interaction:{mode:'nearest',intersect:false},
+        scales:{
+          x:{ ticks:{color:'#8a8f98',font:{family:'IBM Plex Mono',size:10}}, grid:{color:'#1c2027'} },
+          y:{ ticks:{color:'#8a8f98',font:{family:'IBM Plex Mono',size:10},callback:v=>'$'+v}, grid:{color:'#1c2027'} }
+        },
+        plugins:{
+          legend:{ position:'bottom', labels:{color:'#c7c9cf', font:{family:'Inter',size:11}, boxWidth:10, boxHeight:10} },
+          tooltip:{
+            backgroundColor:'#171b21',
+            borderColor:'#2a2f38',
+            borderWidth:1,
+            titleFont:{family:'IBM Plex Mono',size:11},
+            bodyFont:{family:'IBM Plex Mono',size:11},
+            callbacks:{ label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}` }
+          }
+        }
+      }
+    });
+  })
+  .catch(err=>{
+    document.getElementById('metaLine').textContent = 'sync error — check data.json';
+    console.error(err);
+  });
+</script>
+</body>
+</html>
