@@ -80,7 +80,8 @@ def get_title(page):
     for prop in page.get("properties", {}).values():
         if prop.get("type") == "title":
             parts = prop.get("title", [])
-            return "".join(p.get("plain_text", "") for p in parts) or "Untitled"
+            text = "".join(p.get("plain_text", "") for p in parts).strip()
+            return text or "Untitled"
     return "Untitled"
 
 
@@ -152,7 +153,7 @@ def compute_stats(trades):
         avg_win = round(s["gross_win"] / s["wins"], 2) if s["wins"] else 0
         avg_loss = round(s["gross_loss"] / s["losses"], 2) if s["losses"] else 0
         pf = round(s["gross_win"] / s["gross_loss"], 2) if s["gross_loss"] > 0 else (
-            round(s["gross_win"], 2) if s["gross_win"] > 0 else 0)
+            None if s["gross_win"] > 0 else 0)
         expectancy = round(s["net"] / n, 2) if n else 0
         result.append({
             "name": name, "trades": n, "wins": s["wins"], "losses": s["losses"], "be": s["be"],
@@ -194,3 +195,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+      
