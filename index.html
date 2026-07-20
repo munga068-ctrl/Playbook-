@@ -22,6 +22,22 @@
     --loss: #d0625c;
     --loss-soft: rgba(208,98,92,0.12);
   }
+  html[data-theme="light"]{
+    --bg: #f5f4f0;
+    --panel: #ffffff;
+    --panel-2: #f0efe9;
+    --line: #ded9cd;
+    --ink: #21201c;
+    --ink-dim: #6f6b60;
+    --gold: #a97a2f;
+    --gold-soft: rgba(169,122,47,0.12);
+    --win: #2e8a5c;
+    --win-soft: rgba(46,138,92,0.1);
+    --loss: #b13f39;
+    --loss-soft: rgba(177,63,57,0.1);
+  }
+  body{ transition: background-color .2s ease, color .2s ease; }
+  .card, .stat-pill, .chart-panel{ transition: background-color .2s ease, border-color .2s ease; }
   *{box-sizing:border-box;}
   body{
     margin:0;
@@ -183,6 +199,24 @@
     color:var(--ink-dim);
     text-align:center;
   }
+
+  .header-right{ display:flex; align-items:center; gap:14px; }
+  .theme-toggle{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:7px 12px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .theme-toggle:hover{ border-color:var(--gold); color:var(--ink); }
+  .theme-toggle .icon{ font-size:13px; line-height:1; }
 </style>
 </head>
 <body>
@@ -190,7 +224,12 @@
 
   <header>
     <div class="brand">MM<span>Trades</span> — Framework Ledger</div>
-    <div class="meta" id="metaLine">loading…</div>
+    <div class="header-right">
+      <div class="meta" id="metaLine">loading…</div>
+      <button class="theme-toggle" id="themeToggle" type="button">
+        <span class="icon" id="themeIcon">☾</span><span id="themeLabel">Dark</span>
+      </button>
+    </div>
   </header>
 
   <div class="summary-row" id="summaryRow"></div>
@@ -212,6 +251,45 @@
 
 <script>
 const PALETTE = ['#c99a4a','#4caf7d','#7fa8d4','#d0625c','#b98fce','#5fb8b0','#d4b45f','#8f97a3','#e08f5b','#6f9de0'];
+
+// --- theme toggle ---
+const THEME_KEY = 'mmtrades-theme';
+const CHART_COLORS = {
+  dark:  { tick:'#8a8f98', grid:'#1c2027', legend:'#c7c9cf', tooltipBg:'#171b21', tooltipBorder:'#2a2f38' },
+  light: { tick:'#6f6b60', grid:'#e4e1d8', legend:'#33362f', tooltipBg:'#ffffff', tooltipBorder:'#ded9cd' }
+};
+let mainChartInstance = null;
+
+function getTheme(){
+  return localStorage.getItem(THEME_KEY) ||
+    (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+}
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeIcon').textContent = theme === 'light' ? '☀' : '☾';
+  document.getElementById('themeLabel').textContent = theme === 'light' ? 'Light' : 'Dark';
+  localStorage.setItem(THEME_KEY, theme);
+
+  if (mainChartInstance){
+    const c = CHART_COLORS[theme];
+    const ch = mainChartInstance;
+    ch.options.scales.x.ticks.color = c.tick;
+    ch.options.scales.x.grid.color = c.grid;
+    ch.options.scales.y.ticks.color = c.tick;
+    ch.options.scales.y.grid.color = c.grid;
+    ch.options.plugins.legend.labels.color = c.legend;
+    ch.options.plugins.tooltip.backgroundColor = c.tooltipBg;
+    ch.options.plugins.tooltip.borderColor = c.tooltipBorder;
+    ch.update();
+  }
+}
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  applyTheme(getTheme() === 'light' ? 'dark' : 'light');
+});
+
+applyTheme(getTheme());
 
 function fmt(n){
   const s = n<0 ? '-' : '';
@@ -343,7 +421,8 @@ fetch('data.json?_=' + Date.now())
       };
     });
 
-    new Chart(document.getElementById('mainChart').getContext('2d'), {
+    const cc = CHART_COLORS[getTheme()];
+    mainChartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
       type:'line',
       data:{ labels: allDates, datasets },
       options:{
@@ -351,14 +430,14 @@ fetch('data.json?_=' + Date.now())
         maintainAspectRatio:false,
         interaction:{mode:'nearest',intersect:false},
         scales:{
-          x:{ ticks:{color:'#8a8f98',font:{family:'IBM Plex Mono',size:10}}, grid:{color:'#1c2027'} },
-          y:{ ticks:{color:'#8a8f98',font:{family:'IBM Plex Mono',size:10},callback:v=>'$'+v}, grid:{color:'#1c2027'} }
+          x:{ ticks:{color:cc.tick,font:{family:'IBM Plex Mono',size:10}}, grid:{color:cc.grid} },
+          y:{ ticks:{color:cc.tick,font:{family:'IBM Plex Mono',size:10},callback:v=>'$'+v}, grid:{color:cc.grid} }
         },
         plugins:{
-          legend:{ position:'bottom', labels:{color:'#c7c9cf', font:{family:'Inter',size:11}, boxWidth:10, boxHeight:10} },
+          legend:{ position:'bottom', labels:{color:cc.legend, font:{family:'Inter',size:11}, boxWidth:10, boxHeight:10} },
           tooltip:{
-            backgroundColor:'#171b21',
-            borderColor:'#2a2f38',
+            backgroundColor:cc.tooltipBg,
+            borderColor:cc.tooltipBorder,
             borderWidth:1,
             titleFont:{family:'IBM Plex Mono',size:11},
             bodyFont:{family:'IBM Plex Mono',size:11},
