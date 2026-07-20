@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-19T16:53:39.535777Z",
+  "generated_at": "2026-07-20T08:40:18.023936+00:00",
   "total_trades": 38,
   "total_pnl": -55.39,
   "overall_series": [
@@ -65,7 +65,7 @@
     },
     {
       "date": "2026-02-19",
-      "cum": -158.78
+      "cum": -173.08
     },
     {
       "date": "2026-02-19",
@@ -213,7 +213,7 @@
       ]
     },
     {
-      "name": "10:50-11:10 Lunch Hour Macro",
+      "name": "10:50-11:10-Lunch Hour Macro",
       "trades": 6,
       "wins": 3,
       "losses": 3,
@@ -330,7 +330,7 @@
       ]
     },
     {
-      "name": "10AM 4HR PO3",
+      "name": "10 AM 4HR PO3         ",
       "trades": 3,
       "wins": 1,
       "losses": 2,
