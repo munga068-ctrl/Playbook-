@@ -2,9 +2,8 @@ name: Sync Framework Playbook Data
 
 on:
   schedule:
-    # Runs at 06:00 and 22:00 UTC daily — adjust to taste
     - cron: "0 6,22 * * *"
-  workflow_dispatch: {}   # lets you trigger it manually from the Actions tab
+  workflow_dispatch: {}
 
 jobs:
   sync:
@@ -21,7 +20,6 @@ jobs:
           python-version: "3.11"
 
       - name: Run Notion sync
-        working-directory: playbook
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_TRADES_DATA_SOURCE_ID: ${{ secrets.NOTION_TRADES_DATA_SOURCE_ID }}
@@ -33,7 +31,6 @@ jobs:
         run: |
           git config user.name "mmtrades-sync-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add playbook/data.json
+          git add data.json
           git diff --cached --quiet || git commit -m "chore: sync framework playbook data [skip ci]"
           git push
-
