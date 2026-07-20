@@ -33,4 +33,6 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add data.json
           git diff --cached --quiet || git commit -m "chore: sync framework playbook data [skip ci]"
+          git pull --rebase
           git push
+          
