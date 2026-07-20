@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-20T08:40:18.023936+00:00",
+  "generated_at": "2026-07-20T13:26:17.305600+00:00",
   "total_trades": 38,
   "total_pnl": -55.39,
   "overall_series": [
@@ -308,7 +308,7 @@
       "net_pnl": 207.54,
       "avg_win": 51.89,
       "avg_loss": 0,
-      "profit_factor": 207.54,
+      "profit_factor": null,
       "expectancy": 51.89,
       "series": [
         {
@@ -330,7 +330,7 @@
       ]
     },
     {
-      "name": "10 AM 4HR PO3         ",
+      "name": "10 AM 4HR PO3",
       "trades": 3,
       "wins": 1,
       "losses": 2,
