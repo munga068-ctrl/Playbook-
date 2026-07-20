@@ -245,12 +245,23 @@ function sparkline(canvas, series, color){
 }
 
 fetch('data.json?_=' + Date.now())
-  .then(r=>r.json())
+  .then(r=>{
+    if(!r.ok) throw new Error(`data.json request failed (HTTP ${r.status}) — is it served alongside index.html?`);
+    return r.json();
+  })
   .then(data=>{
     document.getElementById('metaLine').textContent =
       'Synced ' + new Date(data.generated_at).toLocaleString() + ' · ' + data.total_trades + ' trades';
 
     const totalPositive = data.total_pnl >= 0;
+
+    if (!data.frameworks.length) {
+      document.getElementById('summaryRow').innerHTML = `
+        <div class="stat-pill"><div class="label">Status</div><div class="value">No trades logged yet.</div></div>
+      `;
+      return;
+    }
+
     const best = data.frameworks[0];
     const worst = data.frameworks[data.frameworks.length-1];
 
@@ -296,7 +307,7 @@ fetch('data.json?_=' + Date.now())
         </div>
         <canvas class="spark" id="spark-${i}"></canvas>
         <div class="card-foot">
-          <span>PF <b>${fw.profit_factor}</b></span>
+          <span>PF <b>${fw.profit_factor === null ? '∞' : fw.profit_factor}</b></span>
           <span>Expectancy <b class="${fw.expectancy>=0?'pos':'neg'}">${fmt(fw.expectancy)}</b></span>
           <span>Avg W/L <b>${fmt(fw.avg_win)} / ${fmt(-fw.avg_loss)}</b></span>
         </div>
@@ -358,9 +369,10 @@ fetch('data.json?_=' + Date.now())
     });
   })
   .catch(err=>{
-    document.getElementById('metaLine').textContent = 'sync error — check data.json';
+    document.getElementById('metaLine').textContent = 'sync error: ' + err.message;
     console.error(err);
   });
 </script>
 </body>
-</html>
+  </html>
+  
