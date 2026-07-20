@@ -6,7 +6,7 @@
 <title>MMTrades — Framework Ledger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="vendor/chart.umd.min.js"></script>
 <style>
   :root{
     --bg: #0a0c0f;
@@ -190,7 +190,8 @@
     margin:0;
   }
   .chart-sub{font-size:11.5px;color:var(--ink-dim);margin-bottom:16px;}
-  #mainChart{max-height:380px;}
+  .chart-canvas-wrap{position:relative;height:380px;width:100%;}
+  #mainChart{width:100% !important;height:100% !important;}
 
   .footer-note{
     margin-top:30px;
@@ -217,6 +218,9 @@
   }
   .theme-toggle:hover{ border-color:var(--gold); color:var(--ink); }
   .theme-toggle .icon{ font-size:13px; line-height:1; }
+  .theme-toggle:disabled{ opacity:0.55; cursor:default; }
+  .theme-toggle .icon.spin{ display:inline-block; animation:spin 0.8s linear infinite; }
+  @keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
 </style>
 </head>
 <body>
@@ -226,6 +230,9 @@
     <div class="brand">MM<span>Trades</span> — Framework Ledger</div>
     <div class="header-right">
       <div class="meta" id="metaLine">loading…</div>
+      <button class="theme-toggle" id="syncBtn" type="button">
+        <span class="icon" id="syncIcon">⟳</span><span id="syncLabel">Sync</span>
+      </button>
       <button class="theme-toggle" id="themeToggle" type="button">
         <span class="icon" id="themeIcon">☾</span><span id="themeLabel">Dark</span>
       </button>
@@ -243,7 +250,7 @@
       <h3>Cumulative P&amp;L by Framework</h3>
     </div>
     <div class="chart-sub">Running P&amp;L for each framework across every trade it appears in, plotted in trade sequence.</div>
-    <canvas id="mainChart"></canvas>
+    <div class="chart-canvas-wrap"><canvas id="mainChart"></canvas></div>
   </div>
 
   <div class="footer-note">Synced from Notion · data.json regenerated automatically</div>
@@ -296,9 +303,11 @@ function fmt(n){
   return s + '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
+let sparkInstances = [];
+
 function sparkline(canvas, series, color){
   const ctx = canvas.getContext('2d');
-  new Chart(ctx, {
+  const chart = new Chart(ctx, {
     type:'line',
     data:{
       labels: series.map(p=>p.date),
@@ -320,138 +329,179 @@ function sparkline(canvas, series, color){
       plugins:{legend:{display:false},tooltip:{enabled:false}}
     }
   });
+  sparkInstances.push(chart);
 }
 
-fetch('data.json?_=' + Date.now())
-  .then(r=>{
-    if(!r.ok) throw new Error(`data.json request failed (HTTP ${r.status}) — is it served alongside index.html?`);
-    return r.json();
-  })
-  .then(data=>{
-    document.getElementById('metaLine').textContent =
-      'Synced ' + new Date(data.generated_at).toLocaleString() + ' · ' + data.total_trades + ' trades';
+// Same "Synced <timestamp> · <n> trades" criteria drives both the header
+// meta line and the sync button — both read straight off data.generated_at.
+function setSyncedLine(data){
+  document.getElementById('metaLine').textContent =
+    'Synced ' + new Date(data.generated_at).toLocaleString() + ' · ' + data.total_trades + ' trades';
+}
 
-    const totalPositive = data.total_pnl >= 0;
+function destroyExistingCharts(){
+  if (mainChartInstance){ mainChartInstance.destroy(); mainChartInstance = null; }
+  sparkInstances.forEach(c => c.destroy());
+  sparkInstances = [];
+}
 
-    if (!data.frameworks.length) {
+function loadData(){
+  return fetch('data.json?_=' + Date.now())
+    .then(r=>{
+      if(!r.ok) throw new Error(`data.json request failed (HTTP ${r.status}) — is it served alongside index.html?`);
+      return r.json();
+    })
+    .then(data=>{
+      setSyncedLine(data);
+
+      const totalPositive = data.total_pnl >= 0;
+
+      // clear previous render before rebuilding (needed for re-sync)
+      destroyExistingCharts();
+      document.getElementById('cardGrid').innerHTML = '';
+
+      if (!data.frameworks.length) {
+        document.getElementById('summaryRow').innerHTML = `
+          <div class="stat-pill"><div class="label">Status</div><div class="value">No trades logged yet.</div></div>
+        `;
+        return;
+      }
+
+      const best = data.frameworks[0];
+      const worst = data.frameworks[data.frameworks.length-1];
+
       document.getElementById('summaryRow').innerHTML = `
-        <div class="stat-pill"><div class="label">Status</div><div class="value">No trades logged yet.</div></div>
-      `;
-      return;
-    }
-
-    const best = data.frameworks[0];
-    const worst = data.frameworks[data.frameworks.length-1];
-
-    document.getElementById('summaryRow').innerHTML = `
-      <div class="stat-pill">
-        <div class="label">Net P&amp;L (all frameworks)</div>
-        <div class="value ${totalPositive?'pos':'neg'}">${fmt(data.total_pnl)}</div>
-      </div>
-      <div class="stat-pill">
-        <div class="label">Trades Logged</div>
-        <div class="value">${data.total_trades}</div>
-      </div>
-      <div class="stat-pill">
-        <div class="label">Best Framework</div>
-        <div class="value pos">${best.name}</div>
-      </div>
-      <div class="stat-pill">
-        <div class="label">Weakest Framework</div>
-        <div class="value neg">${worst.name}</div>
-      </div>
-    `;
-
-    const grid = document.getElementById('cardGrid');
-    data.frameworks.forEach((fw, i) => {
-      const color = PALETTE[i % PALETTE.length];
-      const netPos = fw.net_pnl >= 0;
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="card-top">
-          <div class="card-name">${fw.name}</div>
-          <div class="badge ${netPos?'win':'loss'}">${fw.trades} trade${fw.trades===1?'':'s'}</div>
+        <div class="stat-pill">
+          <div class="label">Net P&amp;L (all frameworks)</div>
+          <div class="value ${totalPositive?'pos':'neg'}">${fmt(data.total_pnl)}</div>
         </div>
-        <div class="card-metrics">
-          <div>
-            <div class="metric-label">Win Rate</div>
-            <div class="metric-value">${fw.win_rate}%</div>
-          </div>
-          <div style="text-align:right">
-            <div class="metric-label">Net P&amp;L</div>
-            <div class="metric-value ${netPos?'pos':'neg'}">${fmt(fw.net_pnl)}</div>
-          </div>
+        <div class="stat-pill">
+          <div class="label">Trades Logged</div>
+          <div class="value">${data.total_trades}</div>
         </div>
-        <canvas class="spark" id="spark-${i}"></canvas>
-        <div class="card-foot">
-          <span>PF <b>${fw.profit_factor === null ? '∞' : fw.profit_factor}</b></span>
-          <span>Expectancy <b class="${fw.expectancy>=0?'pos':'neg'}">${fmt(fw.expectancy)}</b></span>
-          <span>Avg W/L <b>${fmt(fw.avg_win)} / ${fmt(-fw.avg_loss)}</b></span>
+        <div class="stat-pill">
+          <div class="label">Best Framework</div>
+          <div class="value pos">${best.name}</div>
+        </div>
+        <div class="stat-pill">
+          <div class="label">Weakest Framework</div>
+          <div class="value neg">${worst.name}</div>
         </div>
       `;
-      grid.appendChild(card);
-    });
 
-    // draw sparklines after DOM insert
-    data.frameworks.forEach((fw, i)=>{
-      const c = document.getElementById('spark-'+i);
-      if (c && fw.series.length) sparkline(c, fw.series, PALETTE[i % PALETTE.length]);
-    });
-
-    // main combined chart — union of dates
-    const allDates = [...new Set(data.frameworks.flatMap(f=>f.series.map(p=>p.date)))].sort();
-    const datasets = data.frameworks.map((fw,i)=>{
-      const map = Object.fromEntries(fw.series.map(p=>[p.date,p.cum]));
-      let last = null;
-      const vals = allDates.map(d=>{
-        if (map[d] !== undefined){ last = map[d]; return map[d]; }
-        return last;
+      const grid = document.getElementById('cardGrid');
+      data.frameworks.forEach((fw, i) => {
+        const color = PALETTE[i % PALETTE.length];
+        const netPos = fw.net_pnl >= 0;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-name">${fw.name}</div>
+            <div class="badge ${netPos?'win':'loss'}">${fw.trades} trade${fw.trades===1?'':'s'}</div>
+          </div>
+          <div class="card-metrics">
+            <div>
+              <div class="metric-label">Win Rate</div>
+              <div class="metric-value">${fw.win_rate}%</div>
+            </div>
+            <div style="text-align:right">
+              <div class="metric-label">Net P&amp;L</div>
+              <div class="metric-value ${netPos?'pos':'neg'}">${fmt(fw.net_pnl)}</div>
+            </div>
+          </div>
+          <canvas class="spark" id="spark-${i}"></canvas>
+          <div class="card-foot">
+            <span>PF <b>${fw.profit_factor === null ? '∞' : fw.profit_factor}</b></span>
+            <span>Expectancy <b class="${fw.expectancy>=0?'pos':'neg'}">${fmt(fw.expectancy)}</b></span>
+            <span>Avg W/L <b>${fmt(fw.avg_win)} / ${fmt(-fw.avg_loss)}</b></span>
+          </div>
+        `;
+        grid.appendChild(card);
       });
-      const color = PALETTE[i % PALETTE.length];
-      return {
-        label: fw.name,
-        data: vals,
-        borderColor: color,
-        backgroundColor: color,
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.2,
-        spanGaps: true
-      };
-    });
 
-    const cc = CHART_COLORS[getTheme()];
-    mainChartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
-      type:'line',
-      data:{ labels: allDates, datasets },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        interaction:{mode:'nearest',intersect:false},
-        scales:{
-          x:{ ticks:{color:cc.tick,font:{family:'IBM Plex Mono',size:10}}, grid:{color:cc.grid} },
-          y:{ ticks:{color:cc.tick,font:{family:'IBM Plex Mono',size:10},callback:v=>'$'+v}, grid:{color:cc.grid} }
-        },
-        plugins:{
-          legend:{ position:'bottom', labels:{color:cc.legend, font:{family:'Inter',size:11}, boxWidth:10, boxHeight:10} },
-          tooltip:{
-            backgroundColor:cc.tooltipBg,
-            borderColor:cc.tooltipBorder,
-            borderWidth:1,
-            titleFont:{family:'IBM Plex Mono',size:11},
-            bodyFont:{family:'IBM Plex Mono',size:11},
-            callbacks:{ label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}` }
+      // draw sparklines after DOM insert
+      data.frameworks.forEach((fw, i)=>{
+        const c = document.getElementById('spark-'+i);
+        if (c && fw.series.length) sparkline(c, fw.series, PALETTE[i % PALETTE.length]);
+      });
+
+      // main combined chart — union of dates
+      const allDates = [...new Set(data.frameworks.flatMap(f=>f.series.map(p=>p.date)))].sort();
+      const datasets = data.frameworks.map((fw,i)=>{
+        const map = Object.fromEntries(fw.series.map(p=>[p.date,p.cum]));
+        let last = null;
+        const vals = allDates.map(d=>{
+          if (map[d] !== undefined){ last = map[d]; return map[d]; }
+          return last;
+        });
+        const color = PALETTE[i % PALETTE.length];
+        return {
+          label: fw.name,
+          data: vals,
+          borderColor: color,
+          backgroundColor: color,
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.2,
+          spanGaps: true
+        };
+      });
+
+      const cc = CHART_COLORS[getTheme()];
+      mainChartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
+        type:'line',
+        data:{ labels: allDates, datasets },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          interaction:{mode:'nearest',intersect:false},
+          scales:{
+            x:{ ticks:{color:cc.tick,font:{family:'IBM Plex Mono',size:10}}, grid:{color:cc.grid} },
+            y:{ ticks:{color:cc.tick,font:{family:'IBM Plex Mono',size:10},callback:v=>'$'+v}, grid:{color:cc.grid} }
+          },
+          plugins:{
+            legend:{ position:'bottom', labels:{color:cc.legend, font:{family:'Inter',size:11}, boxWidth:10, boxHeight:10} },
+            tooltip:{
+              backgroundColor:cc.tooltipBg,
+              borderColor:cc.tooltipBorder,
+              borderWidth:1,
+              titleFont:{family:'IBM Plex Mono',size:11},
+              bodyFont:{family:'IBM Plex Mono',size:11},
+              callbacks:{ label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}` }
+            }
           }
         }
-      }
+      });
+    })
+    .catch(err=>{
+      document.getElementById('metaLine').textContent = 'sync error: ' + err.message;
+      console.error(err);
+      throw err;
     });
-  })
-  .catch(err=>{
-    document.getElementById('metaLine').textContent = 'sync error: ' + err.message;
-    console.error(err);
-  });
+}
+
+const syncBtn = document.getElementById('syncBtn');
+const syncIcon = document.getElementById('syncIcon');
+const syncLabel = document.getElementById('syncLabel');
+
+syncBtn.addEventListener('click', () => {
+  syncBtn.disabled = true;
+  syncIcon.classList.add('spin');
+  syncLabel.textContent = 'Syncing…';
+  loadData()
+    .then(() => { syncLabel.textContent = 'Synced'; })
+    .catch(() => { syncLabel.textContent = 'Retry'; })
+    .finally(() => {
+      syncIcon.classList.remove('spin');
+      syncBtn.disabled = false;
+      setTimeout(() => { syncLabel.textContent = 'Sync'; }, 2000);
+    });
+});
+
+loadData();
 </script>
 </body>
   </html>
+
   
