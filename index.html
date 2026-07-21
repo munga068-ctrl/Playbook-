@@ -57,7 +57,7 @@
     gap:10px;
   }
   .brand{
-    font-family:Georgia,'Times New Roman',serif;
+    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
     font-size:26px;
     font-weight:500;
     letter-spacing:0.2px;
@@ -99,7 +99,7 @@
   .neg{color:var(--loss);}
 
   .section-title{
-    font-family:Georgia,'Times New Roman',serif;
+    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
     font-size:15px;
     text-transform:uppercase;
     letter-spacing:1.5px;
@@ -143,7 +143,7 @@
     margin-bottom:10px;
   }
   .card-name{
-    font-family:Georgia,'Times New Roman',serif;
+    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
     font-size:16px;
     font-weight:500;
     line-height:1.25;
@@ -186,7 +186,7 @@
   .spark-wrap{position:relative;width:100%;height:36px;margin-top:10px;overflow:hidden;}
 
   .chart-panel{
-    background:var(--panel);
+    background:transparent;
     border:1px solid var(--line);
     border-radius:12px;
     padding:20px 22px;
@@ -198,7 +198,7 @@
     margin-bottom:6px;
   }
   .chart-head h3{
-    font-family:Georgia,'Times New Roman',serif;
+    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
     font-weight:500;
     font-size:16px;
     margin:0;
@@ -273,6 +273,12 @@
 
 <script>
 const PALETTE = ['#c99a4a','#4caf7d','#7fa8d4','#d0625c','#b98fce','#5fb8b0','#d4b45f','#8f97a3','#e08f5b','#6f9de0'];
+const PNL_WIN = '#4caf7d';
+const PNL_LOSS = '#d0625c';
+const PNL_FLAT = '#8a8f98';
+function pnlColor(v){
+  return v > 0 ? PNL_WIN : v < 0 ? PNL_LOSS : PNL_FLAT;
+}
 
 // --- theme toggle ---
 const THEME_KEY = 'mmtrades-theme';
@@ -297,9 +303,9 @@ function applyTheme(theme){
     const c = CHART_COLORS[theme];
     const ch = mainChartInstance;
     ch.options.scales.x.ticks.color = c.tick;
-    ch.options.scales.x.grid.color = c.grid;
+    ch.options.scales.x.grid.display = false;
     ch.options.scales.y.ticks.color = c.tick;
-    ch.options.scales.y.grid.color = c.grid;
+    ch.options.scales.y.grid.display = false;
     ch.options.plugins.legend.labels.color = c.legend;
     ch.options.plugins.tooltip.backgroundColor = c.tooltipBg;
     ch.options.plugins.tooltip.borderColor = c.tooltipBorder;
@@ -473,7 +479,7 @@ function loadData(){
           if (map[d] !== undefined){ last = map[d]; return map[d]; }
           return last;
         });
-        const color = PALETTE[i % PALETTE.length];
+        const color = pnlColor(fw.net_pnl);
         return {
           label: fw.name,
           data: vals,
@@ -495,8 +501,8 @@ function loadData(){
           maintainAspectRatio:false,
           interaction:{mode:'nearest',intersect:false},
           scales:{
-            x:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10}}, grid:{color:cc.grid} },
-            y:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10},callback:v=>'$'+v}, grid:{color:cc.grid} }
+            x:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10}}, grid:{display:false} },
+            y:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10},callback:v=>'$'+v}, grid:{display:false} }
           },
           plugins:{
             legend:{ position:'bottom', labels:{color:cc.legend, font:{family:'-apple-system',size:11}, boxWidth:10, boxHeight:10} },
