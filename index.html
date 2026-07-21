@@ -122,6 +122,7 @@
     display:grid;
     grid-template-columns:repeat(auto-fill, minmax(270px, 1fr));
     gap:14px;
+    align-items:start;
   }
   .card{
     background:var(--panel);
@@ -131,6 +132,8 @@
     position:relative;
     overflow:hidden;
     transition:border-color .15s ease;
+    min-width:0;
+    min-height:0;
   }
   .card:hover{border-color:#3a4049;}
   .card-top{
@@ -451,6 +454,14 @@ function loadData(){
       data.frameworks.forEach((fw, i)=>{
         const c = document.getElementById('spark-'+i);
         if (c && fw.series.length) sparkline(c, fw.series, PALETTE[i % PALETTE.length]);
+      });
+
+      // safety net: once the grid has fully settled into its final layout,
+      // force every sparkline to recompute its size against the real
+      // (now-stable) 36px spark-wrap box rather than whatever it measured
+      // at creation time
+      requestAnimationFrame(() => {
+        sparkInstances.forEach(c => c.resize());
       });
 
       // main combined chart — union of dates
