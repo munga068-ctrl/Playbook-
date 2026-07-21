@@ -93,10 +93,10 @@ def build_name_map(data_source_id):
 def _normalize_framework_name(name):
     """Treat explicit 'NO FRAMEWORK AM' / 'NO FRAMEWORK PM' placeholder pages
     the same as a trade with no relation at all — both mean 'not really tied
-    to a playbook' and should show up as a single 'Untagged' bucket rather
+    to a playbook' and should show up as a single '❌ No Setup' bucket rather
     than as their own framework cards."""
     if name.strip().upper().startswith("NO FRAMEWORK"):
-        return "Untagged"
+        return "❌ No Setup"
     return name
 
 
@@ -146,7 +146,7 @@ def compute_stats(trades):
     running = defaultdict(float)
 
     for t in trades:
-        fw_list = t["frameworks"] or ["Untagged"]
+        fw_list = t["frameworks"] or ["❌ No Setup"]
         for fw in fw_list:
             s = stats[fw]
             s["trades"] += 1
