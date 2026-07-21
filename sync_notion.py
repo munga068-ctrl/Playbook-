@@ -90,6 +90,16 @@ def build_name_map(data_source_id):
     return {p["id"]: get_title(p) for p in pages}
 
 
+def _normalize_framework_name(name):
+    """Treat explicit 'NO FRAMEWORK AM' / 'NO FRAMEWORK PM' placeholder pages
+    the same as a trade with no relation at all — both mean 'not really tied
+    to a playbook' and should show up as a single 'Untagged' bucket rather
+    than as their own framework cards."""
+    if name.strip().upper().startswith("NO FRAMEWORK"):
+        return "Untagged"
+    return name
+
+
 def extract_trades(am_names, pm_names):
     pages = query_all(TRADES_DS)
     trades = []
@@ -112,12 +122,18 @@ def extract_trades(am_names, pm_names):
         if date_val is None or pnl_val is None:
             continue  # skip incomplete rows
 
+        raw_frameworks = [am_names.get(i, "Unknown AM") for i in am_ids] \
+                        + [pm_names.get(i, "Unknown PM") for i in pm_ids]
+        # normalize placeholder names, then dedupe so a trade tagged with
+        # e.g. both "NO FRAMEWORK AM" and "NO FRAMEWORK PM" (or any other
+        # repeated name) only counts once toward that bucket
+        frameworks = list(dict.fromkeys(_normalize_framework_name(n) for n in raw_frameworks))
+
         trades.append({
             "date": date_val[:10],
             "pnl": pnl_val,
             "outcome": outcome,
-            "frameworks": [am_names.get(i, "Unknown AM") for i in am_ids]
-                        + [pm_names.get(i, "Unknown PM") for i in pm_ids],
+            "frameworks": frameworks,
         })
     trades.sort(key=lambda t: t["date"])
     return trades
