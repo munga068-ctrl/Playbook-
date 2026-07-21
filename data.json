@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-21T22:41:08.634757+00:00",
+  "generated_at": "2026-07-21T23:16:28.474463+00:00",
   "total_trades": 38,
   "total_pnl": -55.39,
   "multi_tagged_trades": 12,
@@ -449,7 +449,7 @@
       ]
     },
     {
-      "name": "Untagged",
+      "name": "\u274c No Setup",
       "trades": 7,
       "wins": 0,
       "losses": 7,
