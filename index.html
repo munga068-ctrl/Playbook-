@@ -205,7 +205,7 @@
     margin:0;
   }
   .chart-sub{font-size:11.5px;color:var(--ink-dim);margin-bottom:16px;}
-  .chart-canvas-wrap{position:relative;height:380px;width:100%;}
+  .chart-canvas-wrap{position:relative;height:480px;width:100%;}
   #mainChart{width:100% !important;height:100% !important;}
 
   .footer-note{
@@ -284,6 +284,33 @@ function pnlColor(net){
   return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 }
 
+// draws a small label at the terminal point of each framework line, in place of a legend/key
+const lineEndLabelsPlugin = {
+  id: 'lineEndLabels',
+  afterDatasetsDraw(chart){
+    const {ctx, chartArea} = chart;
+    ctx.save();
+    ctx.font = "10px -apple-system, 'Segoe UI', Roboto, sans-serif";
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    chart.data.datasets.forEach((ds, i) => {
+      if (ds._isBaseline) return;
+      const meta = chart.getDatasetMeta(i);
+      if (!meta || meta.hidden) return;
+      const points = meta.data;
+      if (!points || !points.length) return;
+      let idx = points.length - 1;
+      while (idx >= 0 && (ds.data[idx] === null || ds.data[idx] === undefined)) idx--;
+      if (idx < 0) return;
+      const pt = points[idx];
+      const y = Math.max(chartArea.top + 6, Math.min(chartArea.bottom - 6, pt.y));
+      ctx.fillStyle = ds.borderColor;
+      ctx.fillText(ds.label, pt.x + 6, y);
+    });
+    ctx.restore();
+  }
+};
+
 // --- theme toggle ---
 const THEME_KEY = 'mmtrades-theme';
 const CHART_COLORS = {
@@ -308,7 +335,6 @@ function applyTheme(theme){
     const ch = mainChartInstance;
     ch.options.scales.x.ticks.color = c.tick;
     ch.options.scales.y.ticks.color = c.tick;
-    ch.options.plugins.legend.labels.color = c.legend;
     ch.options.plugins.tooltip.backgroundColor = c.tooltipBg;
     ch.options.plugins.tooltip.borderColor = c.tooltipBorder;
     ch.update();
@@ -486,33 +512,51 @@ function loadData(){
           data: vals,
           borderColor: color,
           backgroundColor: color,
-          borderWidth: 2,
+          borderWidth: 1.25,
           pointRadius: 0,
           tension: 0.2,
           spanGaps: true
         };
       });
 
+      // dashed zero-reference line, drawn behind the framework lines
+      const zeroLine = {
+        label: '__zero__',
+        _isBaseline: true,
+        data: allDates.map(()=>0),
+        borderColor: '#000',
+        borderWidth: 1,
+        borderDash: [5,4],
+        pointRadius: 0,
+        tension: 0,
+        spanGaps: true,
+        order: -1
+      };
+      datasets.unshift(zeroLine);
+
       const cc = CHART_COLORS[getTheme()];
       mainChartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
         type:'line',
         data:{ labels: allDates, datasets },
+        plugins:[lineEndLabelsPlugin],
         options:{
           responsive:true,
           maintainAspectRatio:false,
+          layout:{ padding:{ right: 150 } },
           interaction:{mode:'nearest',intersect:false},
           scales:{
             x:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10}}, grid:{display:false} },
-            y:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10},callback:v=>'$'+v}, grid:{display:false} }
+            y:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10},callback:v=>'$'+v}, grid:{display:false}, grace:'8%' }
           },
           plugins:{
-            legend:{ position:'bottom', labels:{color:cc.legend, font:{family:'-apple-system',size:11}, boxWidth:10, boxHeight:10} },
+            legend:{ display:false },
             tooltip:{
               backgroundColor:cc.tooltipBg,
               borderColor:cc.tooltipBorder,
               borderWidth:1,
               titleFont:{family:'ui-monospace',size:11},
               bodyFont:{family:'ui-monospace',size:11},
+              filter: item => item.dataset.label !== '__zero__',
               callbacks:{ label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}` }
             }
           }
