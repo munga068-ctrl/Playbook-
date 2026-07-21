@@ -574,11 +574,11 @@ const syncBtn = document.getElementById('syncBtn');
 const syncIcon = document.getElementById('syncIcon');
 const syncLabel = document.getElementById('syncLabel');
 
-syncBtn.addEventListener('click', () => {
+function runSync(){
   syncBtn.disabled = true;
   syncIcon.classList.add('spin');
   syncLabel.textContent = 'Syncing…';
-  loadData()
+  return loadData()
     .then(() => { syncLabel.textContent = 'Synced'; })
     .catch(() => { syncLabel.textContent = 'Retry'; })
     .finally(() => {
@@ -586,13 +586,25 @@ syncBtn.addEventListener('click', () => {
       syncBtn.disabled = false;
       setTimeout(() => { syncLabel.textContent = 'Sync'; }, 2000);
     });
-});
+}
+
+syncBtn.addEventListener('click', runSync);
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', loadData);
 } else {
   loadData();
 }
+
+// Auto-refresh: re-sync data.json every 5 minutes without a full page reload.
+// Only runs the auto-sync while the tab is actually visible, so it doesn't
+// hammer data.json in background tabs.
+const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
+setInterval(() => {
+  if (document.visibilityState === 'visible') {
+    runSync();
+  }
+}, AUTO_REFRESH_MS);
 </script>
 </body>
-  </html>
+</html>
