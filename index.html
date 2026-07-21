@@ -272,7 +272,16 @@
 </div>
 
 <script>
-const PALETTE = ['#c99a4a','#4caf7d','#7fa8d4','#d0625c','#b98fce','#5fb8b0','#d4b45f','#8f97a3','#e08f5b','#6f9de0'];
+// Sparklines and the main chart are colored by P&L sign rather than a
+// per-framework palette: green for a framework that's net positive, red
+// for one that's net negative, matching the win/loss shades used elsewhere.
+const PNL_COLORS = {
+  dark:  { win:'#4caf7d', loss:'#d0625c' },
+  light: { win:'#2e8a5c', loss:'#b13f39' }
+};
+function pnlColor(netPnl){
+  return PNL_COLORS[getTheme()][netPnl >= 0 ? 'win' : 'loss'];
+}
 
 // --- theme toggle ---
 const THEME_KEY = 'mmtrades-theme';
@@ -421,7 +430,7 @@ function loadData(){
 
       const grid = document.getElementById('cardGrid');
       data.frameworks.forEach((fw, i) => {
-        const color = PALETTE[i % PALETTE.length];
+        const color = pnlColor(fw.net_pnl);
         const netPos = fw.net_pnl >= 0;
         const card = document.createElement('div');
         card.className = 'card';
@@ -453,7 +462,7 @@ function loadData(){
       // draw sparklines after DOM insert
       data.frameworks.forEach((fw, i)=>{
         const c = document.getElementById('spark-'+i);
-        if (c && fw.series.length) sparkline(c, fw.series, PALETTE[i % PALETTE.length]);
+        if (c && fw.series.length) sparkline(c, fw.series, pnlColor(fw.net_pnl));
       });
 
       // safety net: once the grid has fully settled into its final layout,
@@ -473,7 +482,7 @@ function loadData(){
           if (map[d] !== undefined){ last = map[d]; return map[d]; }
           return last;
         });
-        const color = PALETTE[i % PALETTE.length];
+        const color = pnlColor(fw.net_pnl);
         return {
           label: fw.name,
           data: vals,
