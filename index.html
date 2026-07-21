@@ -373,6 +373,60 @@ function destroyExistingCharts(){
   sparkInstances = [];
 }
 
+// --- main chart plugins: dashed zero line + end-of-line labels
+// (replaces the legend key so the lines themselves can stay bold/uncluttered)
+const zeroLinePlugin = {
+  id: 'zeroLine',
+  beforeDatasetsDraw(chart){
+    const { ctx, chartArea, scales } = chart;
+    if (!scales.y) return;
+    const yZero = scales.y.getPixelForValue(0);
+    if (yZero < chartArea.top || yZero > chartArea.bottom) return;
+    ctx.save();
+    ctx.strokeStyle = CHART_COLORS[getTheme()].grid;
+    ctx.setLineDash([5, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(chartArea.left, yZero);
+    ctx.lineTo(chartArea.right, yZero);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
+const endLabelsPlugin = {
+  id: 'endLabels',
+  afterDatasetsDraw(chart){
+    const { ctx } = chart;
+    const entries = [];
+    chart.data.datasets.forEach((ds, i) => {
+      const meta = chart.getDatasetMeta(i);
+      if (meta.hidden) return;
+      let idx = ds.data.length - 1;
+      while (idx >= 0 && (ds.data[idx] === null || ds.data[idx] === undefined)) idx--;
+      if (idx < 0) return;
+      const point = meta.data[idx];
+      if (!point) return;
+      entries.push({ label: ds.label, color: ds.borderColor, x: point.x, y: point.y });
+    });
+    // nudge labels apart vertically so close-ending lines don't overlap
+    entries.sort((a, b) => a.y - b.y);
+    const minGap = 14;
+    for (let i = 1; i < entries.length; i++){
+      if (entries[i].y - entries[i - 1].y < minGap) entries[i].y = entries[i - 1].y + minGap;
+    }
+    ctx.save();
+    ctx.font = "600 11px 'Inter', sans-serif";
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    entries.forEach(e => {
+      ctx.fillStyle = e.color;
+      ctx.fillText(e.label, e.x + 8, e.y);
+    });
+    ctx.restore();
+  }
+};
+
 function loadData(){
   return fetch('data.json', { cache: 'no-store' })
     .then(r=>{
@@ -503,16 +557,18 @@ function loadData(){
       mainChartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
         type:'line',
         data:{ labels: allDates, datasets },
+        plugins:[zeroLinePlugin, endLabelsPlugin],
         options:{
           responsive:true,
           maintainAspectRatio:false,
           interaction:{mode:'nearest',intersect:false},
+          layout:{ padding:{ right: 110 } },
           scales:{
             x:{ ticks:{color:cc.tick,font:{family:'Inter',size:10}}, grid:{display:false} },
             y:{ ticks:{color:cc.tick,font:{family:'Inter',size:10},callback:v=>'$'+v}, grid:{display:false} }
           },
           plugins:{
-            legend:{ position:'bottom', labels:{color:cc.legend, font:{family:'Inter',size:11}, boxWidth:10, boxHeight:10} },
+            legend:{ display:false, position:'bottom', labels:{color:cc.legend, font:{family:'Inter',size:11}, boxWidth:10, boxHeight:10} },
             tooltip:{
               backgroundColor:cc.tooltipBg,
               borderColor:cc.tooltipBorder,
