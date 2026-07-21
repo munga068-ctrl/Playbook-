@@ -5,9 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MMTrades — Framework Ledger</title>
 <link rel="preload" href="data.json" as="fetch" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="vendor/chart.umd.min.js" defer></script>
 <style>
   :root{
+    --font: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
     --bg: #0a0c0f;
     --panel: #12151a;
     --panel-2: #171b21;
@@ -42,7 +46,7 @@
     margin:0;
     background:var(--bg);
     color:var(--ink);
-    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
+    font-family:var(--font);
     padding:28px 24px 60px;
   }
   .wrap{max-width:1180px;margin:0 auto;}
@@ -57,14 +61,14 @@
     gap:10px;
   }
   .brand{
-    font-family:Georgia,'Times New Roman',serif;
+    font-family:var(--font);
     font-size:26px;
     font-weight:500;
     letter-spacing:0.2px;
   }
   .brand span{color:var(--gold);}
   .meta{
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+    font-family:var(--font);
     font-size:11.5px;
     color:var(--ink-dim);
     text-align:right;
@@ -91,7 +95,7 @@
     margin-bottom:6px;
   }
   .stat-pill .value{
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+    font-family:var(--font);
     font-size:22px;
     font-weight:600;
   }
@@ -99,7 +103,7 @@
   .neg{color:var(--loss);}
 
   .section-title{
-    font-family:Georgia,'Times New Roman',serif;
+    font-family:var(--font);
     font-size:15px;
     text-transform:uppercase;
     letter-spacing:1.5px;
@@ -143,14 +147,14 @@
     margin-bottom:10px;
   }
   .card-name{
-    font-family:Georgia,'Times New Roman',serif;
+    font-family:var(--font);
     font-size:16px;
     font-weight:500;
     line-height:1.25;
     max-width:70%;
   }
   .badge{
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+    font-family:var(--font);
     font-size:10px;
     padding:3px 8px;
     border-radius:20px;
@@ -168,7 +172,7 @@
     margin-top:8px;
   }
   .metric-label{font-size:10px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
-  .metric-value{font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;font-size:15px;font-weight:600;}
+  .metric-value{font-family:var(--font);font-size:15px;font-weight:600;}
 
   .card-foot{
     display:flex;
@@ -176,7 +180,7 @@
     margin-top:14px;
     padding-top:10px;
     border-top:1px dashed var(--line);
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+    font-family:var(--font);
     font-size:11px;
     color:var(--ink-dim);
   }
@@ -198,7 +202,7 @@
     margin-bottom:6px;
   }
   .chart-head h3{
-    font-family:Georgia,'Times New Roman',serif;
+    font-family:var(--font);
     font-weight:500;
     font-size:16px;
     margin:0;
@@ -209,7 +213,7 @@
 
   .footer-note{
     margin-top:30px;
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+    font-family:var(--font);
     font-size:10.5px;
     color:var(--ink-dim);
     text-align:center;
@@ -223,7 +227,7 @@
     background:var(--panel);
     border:1px solid var(--line);
     color:var(--ink-dim);
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+    font-family:var(--font);
     font-size:11px;
     padding:7px 12px;
     border-radius:20px;
@@ -504,17 +508,17 @@ function loadData(){
           maintainAspectRatio:false,
           interaction:{mode:'nearest',intersect:false},
           scales:{
-            x:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10}}, grid:{color:cc.grid} },
-            y:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10},callback:v=>'$'+v}, grid:{color:cc.grid} }
+            x:{ ticks:{color:cc.tick,font:{family:'Inter',size:10}}, grid:{display:false} },
+            y:{ ticks:{color:cc.tick,font:{family:'Inter',size:10},callback:v=>'$'+v}, grid:{display:false} }
           },
           plugins:{
-            legend:{ position:'bottom', labels:{color:cc.legend, font:{family:'-apple-system',size:11}, boxWidth:10, boxHeight:10} },
+            legend:{ position:'bottom', labels:{color:cc.legend, font:{family:'Inter',size:11}, boxWidth:10, boxHeight:10} },
             tooltip:{
               backgroundColor:cc.tooltipBg,
               borderColor:cc.tooltipBorder,
               borderWidth:1,
-              titleFont:{family:'ui-monospace',size:11},
-              bodyFont:{family:'ui-monospace',size:11},
+              titleFont:{family:'Inter',size:11},
+              bodyFont:{family:'Inter',size:11},
               callbacks:{ label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}` }
             }
           }
