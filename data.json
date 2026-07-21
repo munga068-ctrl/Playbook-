@@ -1,7 +1,9 @@
 {
-  "generated_at": "2026-07-21T07:42:09.845642+00:00",
+  "generated_at": "2026-07-21T22:41:08.634757+00:00",
   "total_trades": 38,
   "total_pnl": -55.39,
+  "multi_tagged_trades": 12,
+  "attributed_pnl_total": 602.49,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -416,48 +418,6 @@
       ]
     },
     {
-      "name": "NO FRAMEWORK PM",
-      "trades": 1,
-      "wins": 0,
-      "losses": 1,
-      "be": 0,
-      "win_rate": 0.0,
-      "net_pnl": -29.85,
-      "avg_win": 0,
-      "avg_loss": 29.85,
-      "profit_factor": 0.0,
-      "expectancy": -29.85,
-      "series": [
-        {
-          "date": "2026-04-10",
-          "cum": -29.85
-        }
-      ]
-    },
-    {
-      "name": "Untagged",
-      "trades": 2,
-      "wins": 0,
-      "losses": 2,
-      "be": 0,
-      "win_rate": 0.0,
-      "net_pnl": -98.73,
-      "avg_win": 0,
-      "avg_loss": 49.36,
-      "profit_factor": 0.0,
-      "expectancy": -49.36,
-      "series": [
-        {
-          "date": "2026-02-06",
-          "cum": -50.73
-        },
-        {
-          "date": "2026-02-06",
-          "cum": -98.73
-        }
-      ]
-    },
-    {
       "name": "9:50-10:10 Macro",
       "trades": 4,
       "wins": 0,
@@ -489,17 +449,17 @@
       ]
     },
     {
-      "name": "NO FRAMEWORK AM",
-      "trades": 4,
+      "name": "Untagged",
+      "trades": 7,
       "wins": 0,
-      "losses": 4,
+      "losses": 7,
       "be": 0,
       "win_rate": 0.0,
-      "net_pnl": -293.14,
+      "net_pnl": -421.72,
       "avg_win": 0,
-      "avg_loss": 73.28,
+      "avg_loss": 60.25,
       "profit_factor": 0.0,
-      "expectancy": -73.28,
+      "expectancy": -60.25,
       "series": [
         {
           "date": "2026-01-09",
@@ -510,12 +470,24 @@
           "cum": -203.62
         },
         {
-          "date": "2026-02-27",
-          "cum": -231.2
+          "date": "2026-02-06",
+          "cum": -254.35
+        },
+        {
+          "date": "2026-02-06",
+          "cum": -302.35
         },
         {
           "date": "2026-02-27",
-          "cum": -293.14
+          "cum": -329.93
+        },
+        {
+          "date": "2026-02-27",
+          "cum": -391.87
+        },
+        {
+          "date": "2026-04-10",
+          "cum": -421.72
         }
       ]
     }
