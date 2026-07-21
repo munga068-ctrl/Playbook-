@@ -195,9 +195,13 @@ def main():
         overall_series.append({"date": t["date"], "cum": round(overall_running, 2)})
 
     # Trades tagged to more than one framework (e.g. both an AM and a PM
-    # framework) have their P&L attributed to each one, so the per-framework
-    # net_pnl figures will NOT sum to total_pnl below. Surface that count
-    # explicitly so the dashboard can warn instead of silently diverging.
+    # framework) are intentionally given full P&L credit in each one -- both
+    # setups were valid for that trade, so neither should be shortchanged.
+    # That means per-framework net_pnl figures will sum to more than
+    # total_pnl below; this is by design, not a bug. total_pnl itself is
+    # always derived straight from the raw trade list above, never from the
+    # per-framework sums, so it stays accurate regardless. These two fields
+    # just let the dashboard explain the difference to the reader.
     multi_tagged = sum(1 for t in trades if len(t["frameworks"] or []) > 1)
     attributed_pnl_total = round(sum(f["net_pnl"] for f in frameworks), 2)
 
