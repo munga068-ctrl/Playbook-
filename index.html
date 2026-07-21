@@ -42,7 +42,7 @@
     margin:0;
     background:var(--bg);
     color:var(--ink);
-    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
     padding:28px 24px 60px;
   }
   .wrap{max-width:1180px;margin:0 auto;}
@@ -57,14 +57,14 @@
     gap:10px;
   }
   .brand{
-    font-family:'Inter',-apple-system,sans-serif;
+    font-family:Georgia,'Times New Roman',serif;
     font-size:26px;
-    font-weight:700;
-    letter-spacing:-0.3px;
+    font-weight:500;
+    letter-spacing:0.2px;
   }
   .brand span{color:var(--gold);}
   .meta{
-    font-family:'Inter',-apple-system,sans-serif;
+    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
     font-size:11.5px;
     color:var(--ink-dim);
     text-align:right;
@@ -91,18 +91,16 @@
     margin-bottom:6px;
   }
   .stat-pill .value{
-    font-family:'Inter',-apple-system,sans-serif;
+    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
     font-size:22px;
-    font-weight:700;
-    letter-spacing:-0.3px;
+    font-weight:600;
   }
   .pos{color:var(--win);}
   .neg{color:var(--loss);}
 
   .section-title{
-    font-family:'Inter',-apple-system,sans-serif;
-    font-size:14px;
-    font-weight:700;
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:15px;
     text-transform:uppercase;
     letter-spacing:1.5px;
     color:var(--ink-dim);
@@ -132,15 +130,12 @@
     border-radius:12px;
     padding:16px 18px 14px;
     position:relative;
-    overflow:visible;
-    transition:border-color .15s ease, box-shadow .15s ease;
+    overflow:hidden;
+    transition:border-color .15s ease;
     min-width:0;
     min-height:0;
-    z-index:1;
   }
-  .card:hover{border-color:#3a4049; z-index:30;}
-  .card.pos{border-left:3px solid var(--win);}
-  .card.neg{border-left:3px solid var(--loss);}
+  .card:hover{border-color:#3a4049;}
   .card-top{
     display:flex;
     justify-content:space-between;
@@ -148,20 +143,18 @@
     margin-bottom:10px;
   }
   .card-name{
-    font-family:'Inter',-apple-system,sans-serif;
+    font-family:Georgia,'Times New Roman',serif;
     font-size:16px;
-    font-weight:700;
+    font-weight:500;
     line-height:1.25;
     max-width:70%;
-    letter-spacing:-0.2px;
   }
   .badge{
-    font-family:'Inter',-apple-system,sans-serif;
+    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
     font-size:10px;
-    font-weight:600;
     padding:3px 8px;
     border-radius:20px;
-    letter-spacing:0.3px;
+    letter-spacing:0.5px;
     white-space:nowrap;
   }
   .badge.win{background:var(--win-soft);color:var(--win);}
@@ -175,38 +168,22 @@
     margin-top:8px;
   }
   .metric-label{font-size:10px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
-  .metric-value{font-family:'Inter',-apple-system,sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.2px;}
+  .metric-value{font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;font-size:15px;font-weight:600;}
+
+  .card-foot{
+    display:flex;
+    justify-content:space-between;
+    margin-top:14px;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+    font-size:11px;
+    color:var(--ink-dim);
+  }
+  .card-foot b{color:var(--ink);font-weight:600;}
 
   .spark{width:100%;height:100% !important;display:block;}
-  .spark-wrap{position:relative;width:100%;height:40px;margin-top:10px;overflow:hidden;}
-
-  /* hover-reveal detail panel — hidden extra stats (PF, expectancy, avg W/L) */
-  .card-hover-details{
-    position:absolute;
-    left:0;
-    right:0;
-    top:100%;
-    margin-top:8px;
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:12px 16px;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px 14px;
-    box-shadow:0 12px 28px rgba(0,0,0,0.35);
-    opacity:0;
-    transform:translateY(-6px);
-    pointer-events:none;
-    transition:opacity .15s ease, transform .15s ease;
-  }
-  .card:hover .card-hover-details{
-    opacity:1;
-    transform:translateY(0);
-    pointer-events:auto;
-  }
-  .card-hover-details .metric-label{margin-bottom:2px;}
-  .card-hover-details .metric-value{font-size:13px;}
+  .spark-wrap{position:relative;width:100%;height:36px;margin-top:10px;overflow:hidden;}
 
   .chart-panel{
     background:var(--panel);
@@ -221,11 +198,10 @@
     margin-bottom:6px;
   }
   .chart-head h3{
-    font-family:'Inter',-apple-system,sans-serif;
-    font-weight:700;
+    font-family:Georgia,'Times New Roman',serif;
+    font-weight:500;
     font-size:16px;
     margin:0;
-    letter-spacing:-0.2px;
   }
   .chart-sub{font-size:11.5px;color:var(--ink-dim);margin-bottom:16px;}
   .chart-canvas-wrap{position:relative;height:380px;width:100%;}
@@ -233,7 +209,7 @@
 
   .footer-note{
     margin-top:30px;
-    font-family:'Inter',-apple-system,sans-serif;
+    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
     font-size:10.5px;
     color:var(--ink-dim);
     text-align:center;
@@ -247,8 +223,7 @@
     background:var(--panel);
     border:1px solid var(--line);
     color:var(--ink-dim);
-    font-family:'Inter',-apple-system,sans-serif;
-    font-weight:600;
+    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
     font-size:11px;
     padding:7px 12px;
     border-radius:20px;
@@ -297,46 +272,15 @@
 </div>
 
 <script>
-// win/loss colors are read live from the CSS custom properties so they
-// stay correct across the light/dark theme toggle.
-function winColor(){ return getComputedStyle(document.documentElement).getPropertyValue('--win').trim(); }
-function lossColor(){ return getComputedStyle(document.documentElement).getPropertyValue('--loss').trim(); }
+const PALETTE = ['#c99a4a','#4caf7d','#7fa8d4','#d0625c','#b98fce','#5fb8b0','#d4b45f','#8f97a3','#e08f5b','#6f9de0'];
 
 // --- theme toggle ---
 const THEME_KEY = 'mmtrades-theme';
 const CHART_COLORS = {
-  dark:  { tick:'#8a8f98', tooltipBg:'#171b21', tooltipBorder:'#2a2f38' },
-  light: { tick:'#6f6b60', tooltipBg:'#ffffff', tooltipBorder:'#ded9cd' }
+  dark:  { tick:'#8a8f98', grid:'#1c2027', legend:'#c7c9cf', tooltipBg:'#171b21', tooltipBorder:'#2a2f38' },
+  light: { tick:'#6f6b60', grid:'#e4e1d8', legend:'#33362f', tooltipBg:'#ffffff', tooltipBorder:'#ded9cd' }
 };
 let mainChartInstance = null;
-
-// Draws each dataset's label directly on the chart next to the end of its
-// line, in that line's own color — replacing the legend below the chart.
-const lineEndLabelsPlugin = {
-  id: 'lineEndLabels',
-  afterDatasetsDraw(chart){
-    const { ctx } = chart;
-    ctx.save();
-    ctx.font = '600 11px Inter, -apple-system, sans-serif';
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'left';
-    chart.data.datasets.forEach((dataset, i) => {
-      const meta = chart.getDatasetMeta(i);
-      if (meta.hidden) return;
-      let lastIndex = -1;
-      for (let j = dataset.data.length - 1; j >= 0; j--){
-        if (dataset.data[j] !== null && dataset.data[j] !== undefined){ lastIndex = j; break; }
-      }
-      if (lastIndex === -1) return;
-      const point = meta.data[lastIndex];
-      if (!point) return;
-      ctx.fillStyle = dataset.borderColor;
-      ctx.fillText(dataset.label, point.x + 6, point.y);
-    });
-    ctx.restore();
-  }
-};
-Chart.register(lineEndLabelsPlugin);
 
 function getTheme(){
   return localStorage.getItem(THEME_KEY) ||
@@ -353,7 +297,10 @@ function applyTheme(theme){
     const c = CHART_COLORS[theme];
     const ch = mainChartInstance;
     ch.options.scales.x.ticks.color = c.tick;
+    ch.options.scales.x.grid.color = c.grid;
     ch.options.scales.y.ticks.color = c.tick;
+    ch.options.scales.y.grid.color = c.grid;
+    ch.options.plugins.legend.labels.color = c.legend;
     ch.options.plugins.tooltip.backgroundColor = c.tooltipBg;
     ch.options.plugins.tooltip.borderColor = c.tooltipBorder;
     ch.update();
@@ -373,8 +320,7 @@ function fmt(n){
 
 let sparkInstances = [];
 
-function sparkline(canvas, series, netPositive){
-  const color = netPositive ? winColor() : lossColor();
+function sparkline(canvas, series, color){
   const ctx = canvas.getContext('2d');
   const chart = new Chart(ctx, {
     type:'line',
@@ -475,9 +421,10 @@ function loadData(){
 
       const grid = document.getElementById('cardGrid');
       data.frameworks.forEach((fw, i) => {
+        const color = PALETTE[i % PALETTE.length];
         const netPos = fw.net_pnl >= 0;
         const card = document.createElement('div');
-        card.className = `card ${netPos?'pos':'neg'}`;
+        card.className = 'card';
         card.innerHTML = `
           <div class="card-top">
             <div class="card-name">${fw.name}</div>
@@ -494,23 +441,10 @@ function loadData(){
             </div>
           </div>
           <div class="spark-wrap"><canvas class="spark" id="spark-${i}"></canvas></div>
-          <div class="card-hover-details">
-            <div>
-              <div class="metric-label">Profit Factor</div>
-              <div class="metric-value">${fw.profit_factor === null ? '∞' : fw.profit_factor}</div>
-            </div>
-            <div style="text-align:right">
-              <div class="metric-label">Expectancy</div>
-              <div class="metric-value ${fw.expectancy>=0?'pos':'neg'}">${fmt(fw.expectancy)}</div>
-            </div>
-            <div>
-              <div class="metric-label">Avg Winner</div>
-              <div class="metric-value pos">${fmt(fw.avg_win)}</div>
-            </div>
-            <div style="text-align:right">
-              <div class="metric-label">Avg Loser</div>
-              <div class="metric-value neg">${fmt(-fw.avg_loss)}</div>
-            </div>
+          <div class="card-foot">
+            <span>PF <b>${fw.profit_factor === null ? '∞' : fw.profit_factor}</b></span>
+            <span>Expectancy <b class="${fw.expectancy>=0?'pos':'neg'}">${fmt(fw.expectancy)}</b></span>
+            <span>Avg W/L <b>${fmt(fw.avg_win)} / ${fmt(-fw.avg_loss)}</b></span>
           </div>
         `;
         grid.appendChild(card);
@@ -519,7 +453,7 @@ function loadData(){
       // draw sparklines after DOM insert
       data.frameworks.forEach((fw, i)=>{
         const c = document.getElementById('spark-'+i);
-        if (c && fw.series.length) sparkline(c, fw.series, fw.net_pnl >= 0);
+        if (c && fw.series.length) sparkline(c, fw.series, PALETTE[i % PALETTE.length]);
       });
 
       // safety net: once the grid has fully settled into its final layout,
@@ -532,15 +466,14 @@ function loadData(){
 
       // main combined chart — union of dates
       const allDates = [...new Set(data.frameworks.flatMap(f=>f.series.map(p=>p.date)))].sort();
-      const win = winColor(), loss = lossColor();
-      const datasets = data.frameworks.map((fw)=>{
+      const datasets = data.frameworks.map((fw,i)=>{
         const map = Object.fromEntries(fw.series.map(p=>[p.date,p.cum]));
         let last = null;
         const vals = allDates.map(d=>{
           if (map[d] !== undefined){ last = map[d]; return map[d]; }
           return last;
         });
-        const color = fw.net_pnl >= 0 ? win : loss;
+        const color = PALETTE[i % PALETTE.length];
         return {
           label: fw.name,
           data: vals,
@@ -553,11 +486,6 @@ function loadData(){
         };
       });
 
-      // longest framework name currently in play drives how much right-hand
-      // padding the chart needs to leave room for the inline end labels
-      const longestName = Math.max(...data.frameworks.map(f => f.name.length), 8);
-      const rightPad = Math.min(220, Math.max(70, longestName * 6.5));
-
       const cc = CHART_COLORS[getTheme()];
       mainChartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
         type:'line',
@@ -565,20 +493,19 @@ function loadData(){
         options:{
           responsive:true,
           maintainAspectRatio:false,
-          layout:{ padding:{ right: rightPad } },
           interaction:{mode:'nearest',intersect:false},
           scales:{
-            x:{ ticks:{color:cc.tick,font:{family:'Inter',size:10}}, grid:{display:false}, border:{display:false} },
-            y:{ ticks:{color:cc.tick,font:{family:'Inter',size:10},callback:v=>'$'+v}, grid:{display:false}, border:{display:false} }
+            x:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10}}, grid:{color:cc.grid} },
+            y:{ ticks:{color:cc.tick,font:{family:'ui-monospace',size:10},callback:v=>'$'+v}, grid:{color:cc.grid} }
           },
           plugins:{
-            legend:{ display:false },
+            legend:{ position:'bottom', labels:{color:cc.legend, font:{family:'-apple-system',size:11}, boxWidth:10, boxHeight:10} },
             tooltip:{
               backgroundColor:cc.tooltipBg,
               borderColor:cc.tooltipBorder,
               borderWidth:1,
-              titleFont:{family:'Inter',size:11},
-              bodyFont:{family:'Inter',size:11},
+              titleFont:{family:'ui-monospace',size:11},
+              bodyFont:{family:'ui-monospace',size:11},
               callbacks:{ label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}` }
             }
           }
