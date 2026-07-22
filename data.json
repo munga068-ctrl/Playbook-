@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-22T13:11:32.708497+00:00",
-  "total_trades": 38,
-  "total_pnl": -55.39,
+  "generated_at": "2026-07-22T16:05:52.037701+00:00",
+  "total_trades": 39,
+  "total_pnl": -103.92,
   "multi_tagged_trades": 12,
-  "attributed_pnl_total": 602.49,
+  "attributed_pnl_total": 553.96,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -156,6 +156,10 @@
     {
       "date": "2026-07-17",
       "cum": -55.39
+    },
+    {
+      "date": "2026-07-22",
+      "cum": -103.92
     }
   ],
   "frameworks": [
@@ -414,6 +418,25 @@
         {
           "date": "2026-05-28",
           "cum": -1.69
+        }
+      ]
+    },
+    {
+      "name": "9:30 Open P03",
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "be": 0,
+      "win_rate": 0.0,
+      "net_pnl": -48.53,
+      "avg_win": 0,
+      "avg_loss": 48.53,
+      "profit_factor": 0.0,
+      "expectancy": -48.53,
+      "series": [
+        {
+          "date": "2026-07-22",
+          "cum": -48.53
         }
       ]
     },
