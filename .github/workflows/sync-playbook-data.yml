@@ -1,32 +1,37 @@
-name: Sync Framework Playbook Data
+name: Sync Notion data
+
 on:
   schedule:
-    - cron: "*/5 * * * *"
-  workflow_dispatch: {}
+    - cron: '0 * * * *'   # every hour, at minute 0 — adjust as needed
+  workflow_dispatch:        # lets you trigger it manually from the Actions tab
+
+permissions:
+  contents: write            # needed so the workflow can push data.json back
+
 jobs:
   sync:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      - name: Run Notion sync
+          python-version: '3.12'
+
+      - name: Run sync script
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_TRADES_DATA_SOURCE_ID: ${{ secrets.NOTION_TRADES_DATA_SOURCE_ID }}
           NOTION_AM_FRAMEWORK_DATA_SOURCE_ID: ${{ secrets.NOTION_AM_FRAMEWORK_DATA_SOURCE_ID }}
           NOTION_PM_FRAMEWORK_DATA_SOURCE_ID: ${{ secrets.NOTION_PM_FRAMEWORK_DATA_SOURCE_ID }}
         run: python sync_notion.py
-      - name: Commit updated data.json
+
+      - name: Commit and push if data changed
         run: |
-          git config user.name "mmtrades-sync-bot"
-          git config user.email "actions@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json
-          git diff --cached --quiet || git commit -m "chore: sync framework playbook data [skip ci]"
-          git pull --rebase
+          git diff --cached --quiet || git commit -m "chore: sync Notion data [skip ci]"
           git push
