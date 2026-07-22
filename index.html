@@ -20,6 +20,7 @@
     --win-soft: rgba(76,175,125,0.12);
     --loss: #d0625c;
     --loss-soft: rgba(208,98,92,0.12);
+    --stale-c: #e0a83b;
   }
   html[data-theme="light"]{
     --bg: #ffffff;
@@ -34,6 +35,7 @@
     --win-soft: rgba(46,138,92,0.1);
     --loss: #b13f39;
     --loss-soft: rgba(177,63,57,0.1);
+    --stale-c: #a97a2f;
   }
   body{ transition: background-color .2s ease, color .2s ease; }
   .card, .stat-pill, .chart-panel{ transition: background-color .2s ease, border-color .2s ease; }
@@ -69,6 +71,8 @@
     color:var(--ink-dim);
     text-align:right;
   }
+  .meta.stale{ color:var(--stale-c); }
+  .meta.err{ color:var(--loss); }
   .summary-row{
     display:flex;
     gap:14px;
@@ -381,12 +385,41 @@ function sparkline(canvas, series, color){
   sparkInstances.push(chart);
 }
 
-// Same "Synced <timestamp> · <n> trades" criteria drives both the header
-// meta line and the sync button — both read straight off data.generated_at.
-function setSyncedLine(data){
-  document.getElementById('metaLine').textContent =
-    'Synced ' + new Date(data.generated_at).toLocaleString() + ' · ' + data.total_trades + ' trades';
+// Mirrors the Daily Summary dashboard's staleness logic: the sync workflow
+// (.github/workflows/sync-playbook-data.yml) runs on the same 5-minute cadence,
+// so healthy data should basically never cross this threshold.
+const STALE_THRESHOLD_MINUTES = 20;
+let lastSyncedAt = null;
+let lastTradeCount = null;
+const metaLineEl = document.getElementById('metaLine');
+
+function relativeAgo(date){
+  const minutesAgo = Math.max(0, Math.round((Date.now() - date.getTime()) / 60000));
+  if(minutesAgo < 1) return { minutesAgo, ago: 'just now' };
+  if(minutesAgo < 60) return { minutesAgo, ago: minutesAgo + ' min ago' };
+  if(minutesAgo < 1440) return { minutesAgo, ago: Math.round(minutesAgo / 60) + ' hr ago' };
+  return { minutesAgo, ago: Math.round(minutesAgo / 1440) + ' days ago' };
 }
+
+function renderSyncedLine(){
+  if(!lastSyncedAt) return;
+  const { minutesAgo, ago } = relativeAgo(lastSyncedAt);
+  const isStale = minutesAgo > STALE_THRESHOLD_MINUTES;
+  metaLineEl.textContent = isStale
+    ? `Last synced ${ago} — this looks stale, the numbers above may be behind. Trigger the sync workflow manually to refresh.`
+    : `Synced ${ago} · ${lastTradeCount} trades`;
+  metaLineEl.className = 'meta' + (isStale ? ' stale' : '');
+}
+
+// Same criteria drives both the header meta line and the sync button — both
+// read straight off data.generated_at. Keep the "X min ago" label ticking,
+// and re-flag staleness, without needing a page reload or re-fetch.
+function setSyncedLine(data){
+  lastSyncedAt = new Date(data.generated_at);
+  lastTradeCount = data.total_trades;
+  renderSyncedLine();
+}
+setInterval(renderSyncedLine, 30000);
 
 function destroyExistingCharts(){
   if (mainChartInstance){ mainChartInstance.destroy(); mainChartInstance = null; }
@@ -571,7 +604,8 @@ function loadData(){
       });
     })
     .catch(err=>{
-      document.getElementById('metaLine').textContent = 'sync error: ' + err.message;
+      metaLineEl.textContent = 'sync error: ' + err.message;
+      metaLineEl.className = 'meta err';
       console.error(err);
       throw err;
     });
