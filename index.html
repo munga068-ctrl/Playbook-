@@ -259,8 +259,7 @@
   </header>
 
   <div class="summary-row" id="summaryRow"></div>
-  <div class="reconcile-note" id="reconcileNote" style="display:none;"></div>
-
+  
   <div class="section-title">Playbooks</div>
   <div class="grid" id="cardGrid"></div>
 
@@ -471,26 +470,6 @@ function loadData(){
         </div>
       `;
 
-      // Trades tagged to more than one framework are intentionally given full
-      // P&L credit in every framework they belong to — both setups were valid
-      // for that trade, so neither should be shortchanged. That means summing
-      // every framework card will exceed the true account P&L above; this is
-      // expected, not a discrepancy to resolve, so the note explains it rather
-      // than flags it as an error. The account total itself is always computed
-      // straight from the underlying trades, never from framework sums.
-      const reconcileNote = document.getElementById('reconcileNote');
-      if (data.multi_tagged_trades > 0) {
-        reconcileNote.style.display = 'block';
-        reconcileNote.innerHTML =
-          `ℹ ${data.multi_tagged_trades} trade${data.multi_tagged_trades===1?'':'s'} ` +
-          `qualified for more than one framework and are credited in full to each — ` +
-          `by design, so no single setup is shortchanged. Framework totals sum to ` +
-          `<b>${fmt(data.attributed_pnl_total)}</b>, but the account Net P&amp;L above ` +
-          `(<b>${fmt(data.total_pnl)}</b>) is calculated directly from actual trades, ` +
-          `not from framework sums, and is the true total.`;
-      } else {
-        reconcileNote.style.display = 'none';
-      }
 
       const grid = document.getElementById('cardGrid');
       data.frameworks.forEach((fw, i) => {
