@@ -7,244 +7,211 @@
 <link rel="preload" href="data.json" as="fetch" crossorigin>
 <script src="vendor/chart.umd.min.js" defer></script>
 <style>
-  :root{
-    --bg: #0a0c0f;
-    --panel: #12151a;
-    --panel-2: #171b21;
-    --line: #23272f;
-    --ink: #e9e6de;
-    --ink-dim: #8a8f98;
-    --gold: #c99a4a;
-    --gold-soft: rgba(201,154,74,0.14);
-    --win: #4caf7d;
-    --win-soft: rgba(76,175,125,0.12);
-    --loss: #d0625c;
-    --loss-soft: rgba(208,98,92,0.12);
-    --stale-c: #e0a83b;
-  }
-  html[data-theme="light"]{
-    --bg: #ffffff;
-    --panel: #ffffff;
-    --panel-2: #f0efe9;
-    --line: #ded9cd;
-    --ink: #21201c;
-    --ink-dim: #6f6b60;
-    --gold: #a97a2f;
-    --gold-soft: rgba(169,122,47,0.12);
-    --win: #2e8a5c;
-    --win-soft: rgba(46,138,92,0.1);
-    --loss: #b13f39;
-    --loss-soft: rgba(177,63,57,0.1);
-    --stale-c: #a97a2f;
-  }
-  body{ transition: background-color .2s ease, color .2s ease; }
-  .card, .stat-pill, .chart-panel{ transition: background-color .2s ease, border-color .2s ease; }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
-    padding:28px 24px 60px;
-  }
-  .wrap{max-width:1180px;margin:0 auto;}
-  header{
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    border-bottom:1px solid var(--line);
-    padding-bottom:16px;
-    margin-bottom:22px;
-    flex-wrap:wrap;
-    gap:10px;
-  }
-  .brand{
-    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
-    font-size:26px;
-    font-weight:500;
-    letter-spacing:0.2px;
-  }
-  .brand span{color:var(--gold);}
-  .meta{
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
-    font-size:11.5px;
-    color:var(--ink-dim);
-    text-align:right;
-  }
-  .meta.stale{ color:var(--stale-c); }
-  .meta.err{ color:var(--loss); }
-  .summary-row{
-    display:flex;
-    gap:14px;
-    margin-bottom:26px;
-    flex-wrap:wrap;
-  }
-  .stat-pill{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:14px 18px;
-    flex:1;
-    min-width:140px;
-  }
-  .stat-pill .label{
-    font-size:10.5px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    color:var(--ink-dim);
-    margin-bottom:6px;
-  }
-  .stat-pill .value{
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
-    font-size:22px;
-    font-weight:600;
-  }
-  .pos{color:var(--win);}
-  .neg{color:var(--loss);}
-  .flat{color:var(--ink-dim);}
+:root{
+  --bg: #0a0c0f;
+  --panel: #12151a;
+  --panel-2: #171b21;
+  --line: #23272f;
+  --ink: #e9e6de;
+  --ink-dim: #8a8f98;
+  --gold: #c99a4a;
+  --gold-soft: rgba(201,154,74,0.14);
+  --win: #4caf7d;
+  --win-soft: rgba(76,175,125,0.12);
+  --loss: #d0625c;
+  --loss-soft: rgba(208,98,92,0.12);
+  --stale-c: #e0a83b;
+}
+html[data-theme="light"]{
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f0efe9;
+  --line: #ded9cd;
+  --ink: #21201c;
+  --ink-dim: #6f6b60;
+  --gold: #a97a2f;
+  --gold-soft: rgba(169,122,47,0.12);
+  --win: #2e8a5c;
+  --win-soft: rgba(46,138,92,0.1);
+  --loss: #b13f39;
+  --loss-soft: rgba(177,63,57,0.1);
+  --stale-c: #a97a2f;
+}
+body{ transition: background-color .2s ease, color .2s ease; }
+.card, .stat-pill, .chart-panel{ transition: background-color .2s ease, border-color .2s ease; }
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
+  padding:28px 24px 60px;
+}
+.wrap{max-width:1180px;margin:0 auto;}
+header{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  border-bottom:1px solid var(--line);
+  padding-bottom:16px;
+  margin-bottom:22px;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.brand{ font-size:26px; font-weight:500; letter-spacing:0.2px; }
+.brand span{color:var(--gold);}
+.meta{
+  font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:11.5px;
+  color:var(--ink-dim);
+  text-align:right;
+}
+.meta.stale{ color:var(--stale-c); }
+.meta.err{ color:var(--loss); }
+.summary-row{ display:flex; gap:14px; margin-bottom:26px; flex-wrap:wrap; }
+.stat-pill{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:14px 18px;
+  flex:1;
+  min-width:140px;
+}
+.stat-pill .label{ font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-dim); margin-bottom:6px; }
+.stat-pill .value{ font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:22px; font-weight:600; }
+.pos{color:var(--win);}
+.neg{color:var(--loss);}
+.flat{color:var(--ink-dim);}
+.section-title{
+  font-size:15px;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  color:var(--ink-dim);
+  margin:34px 0 14px;
+}
 
-  .section-title{
-    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
-    font-size:15px;
-    text-transform:uppercase;
-    letter-spacing:1.5px;
-    color:var(--ink-dim);
-    margin:34px 0 14px;
-  }
+/* ---------- Playbook cards (grid view, matches reference dashboard) ---------- */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+  gap:16px;
+  align-items:start;
+}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:18px 20px 16px;
+  position:relative;
+  overflow:hidden;
+  cursor:default;
+  transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.card:hover, .card:focus-within{
+  border-color:var(--gold);
+  box-shadow:0 10px 28px -12px rgba(0,0,0,0.45);
+  transform:translateY(-2px);
+}
+.card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:14px; }
+.card-id{ display:flex; align-items:center; gap:10px; min-width:0; }
+.card-icon{
+  width:36px; height:36px; flex:0 0 36px;
+  border-radius:9px;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px;
+}
+.card-name-wrap{ min-width:0; }
+.card-name{ font-size:15.5px; font-weight:600; line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.card-sub{ font-size:11.5px; color:var(--gold); margin-top:2px; }
+.badge{
+  font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:10px;
+  color:var(--ink-dim);
+  display:flex; align-items:center; gap:4px;
+  white-space:nowrap;
+  flex:0 0 auto;
+  padding-top:2px;
+}
+.badge .lock{ font-size:10px; }
 
-  .reconcile-note{
-    background:var(--gold-soft);
-    border:1px solid var(--gold);
-    color:var(--ink);
-    font-size:12px;
-    border-radius:8px;
-    padding:10px 14px;
-    margin:-10px 0 22px;
-  }
-  .reconcile-note b{color:var(--gold);}
+.card-metrics{ display:flex; align-items:center; gap:18px; margin:6px 0 4px; }
+.ring{
+  width:56px; height:56px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  flex:0 0 56px;
+  position:relative;
+}
+.ring::before{
+  content:"";
+  position:absolute; inset:0; border-radius:50%;
+  background:conic-gradient(var(--ring-color) calc(var(--pct) * 1%), var(--line) 0);
+  mask:radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+  -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+}
+.ring-label{ position:relative; z-index:1; font-size:9px; font-weight:600; color:var(--ink-dim); text-align:center; line-height:1.2; }
+.metric-block .metric-label{ font-size:10px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+.metric-block .metric-value{ font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:19px; font-weight:700; }
+.metric-block + .metric-block{ margin-left:2px; }
+.metrics-cols{ display:flex; flex-direction:column; gap:10px; }
 
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(270px, 1fr));
-    gap:14px;
-    align-items:start;
-  }
-  .card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:16px 18px 14px;
-    position:relative;
-    overflow:hidden;
-    transition:border-color .15s ease;
-    min-width:0;
-    min-height:0;
-  }
-  .card:hover{border-color:#3a4049;}
-  .card-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    margin-bottom:10px;
-  }
-  .card-name{
-    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
-    font-size:16px;
-    font-weight:500;
-    line-height:1.25;
-    max-width:70%;
-  }
-  .badge{
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
-    font-size:10px;
-    padding:3px 8px;
-    border-radius:20px;
-    letter-spacing:0.5px;
-    white-space:nowrap;
-  }
-  .badge.win{background:var(--win-soft);color:var(--win);}
-  .badge.loss{background:var(--loss-soft);color:var(--loss);}
-  .badge.flat{background:rgba(138,143,152,0.16);color:var(--ink-dim);}
+.spark-wrap{ position:relative; width:100%; height:46px; margin-top:12px; overflow:hidden; }
+.spark{ width:100%; height:100% !important; display:block; }
 
-  .card-metrics{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    margin-top:8px;
-  }
-  .metric-label{font-size:10px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
-  .metric-value{font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;font-size:15px;font-weight:600;}
+/* hover-revealed detail panel — collapsed by default, expands on hover/focus like the reference "Opening Drive" card */
+.card-details{
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  transition:max-height .28s ease, opacity .22s ease, margin-top .28s ease, padding-top .28s ease;
+}
+.card:hover .card-details, .card:focus-within .card-details{
+  max-height:200px;
+  opacity:1;
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px dashed var(--line);
+}
+.details-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px 18px;
+}
+.details-grid .metric-label{ font-size:9.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+.details-grid .metric-value{ font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:14px; font-weight:600; }
+.hover-hint{
+  position:absolute; right:20px; bottom:14px;
+  font-size:9.5px; color:var(--ink-dim); opacity:.6;
+  font-style:italic;
+  transition:opacity .15s ease;
+}
+.card:hover .hover-hint, .card:focus-within .hover-hint{ opacity:0; }
 
-  .card-foot{
-    display:flex;
-    justify-content:space-between;
-    margin-top:14px;
-    padding-top:10px;
-    border-top:1px dashed var(--line);
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
-    font-size:11px;
-    color:var(--ink-dim);
-  }
-  .card-foot b{color:var(--ink);font-weight:600;}
-
-  .spark{width:100%;height:100% !important;display:block;}
-  .spark-wrap{position:relative;width:100%;height:64px;margin-top:10px;overflow:hidden;}
-
-  .chart-panel{
-    background:none;
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:20px 22px;
-  }
-  .chart-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:6px;
-  }
-  .chart-head h3{
-    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
-    font-weight:500;
-    font-size:16px;
-    margin:0;
-  }
-  .chart-sub{font-size:11.5px;color:var(--ink-dim);margin-bottom:16px;}
-  .chart-canvas-wrap{position:relative;height:480px;width:100%;}
-  #mainChart{width:100% !important;height:100% !important;}
-
-  .footer-note{
-    margin-top:30px;
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
-    font-size:10.5px;
-    color:var(--ink-dim);
-    text-align:center;
-  }
-
-  .header-right{ display:flex; align-items:center; gap:14px; }
-  .theme-toggle{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    background:var(--panel);
-    border:1px solid var(--line);
-    color:var(--ink-dim);
-    font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
-    font-size:11px;
-    padding:7px 12px;
-    border-radius:20px;
-    cursor:pointer;
-    transition:border-color .15s ease, color .15s ease;
-  }
-  .theme-toggle:hover{ border-color:var(--gold); color:var(--ink); }
-  .theme-toggle .icon{ font-size:13px; line-height:1; }
-  .theme-toggle:disabled{ opacity:0.55; cursor:default; }
-  .theme-toggle .icon.spin{ display:inline-block; animation:spin 0.8s linear infinite; }
-  @keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+.chart-panel{ background:none; border:1px solid var(--line); border-radius:12px; padding:20px 22px; }
+.chart-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.chart-head h3{ font-weight:500; font-size:16px; margin:0; }
+.chart-sub{ font-size:11.5px; color:var(--ink-dim); margin-bottom:16px; }
+.chart-canvas-wrap{ position:relative; height:480px; width:100%; }
+#mainChart{ width:100% !important; height:100% !important; }
+.footer-note{ margin-top:30px; font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:10.5px; color:var(--ink-dim); text-align:center; }
+.header-right{ display:flex; align-items:center; gap:14px; }
+.theme-toggle{
+  display:flex; align-items:center; gap:6px;
+  background:var(--panel); border:1px solid var(--line); color:var(--ink-dim);
+  font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:11px; padding:7px 12px; border-radius:20px; cursor:pointer;
+  transition:border-color .15s ease, color .15s ease;
+}
+.theme-toggle:hover{ border-color:var(--gold); color:var(--ink); }
+.theme-toggle .icon{ font-size:13px; line-height:1; }
+.theme-toggle:disabled{ opacity:0.55; cursor:default; }
+.theme-toggle .icon.spin{ display:inline-block; animation:spin 0.8s linear infinite; }
+@keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
 </style>
 </head>
 <body>
 <div class="wrap">
-
   <header>
     <div class="brand">MM<span>Trades</span> — Framework Ledger</div>
     <div class="header-right">
@@ -259,20 +226,18 @@
   </header>
 
   <div class="summary-row" id="summaryRow"></div>
-  
+
   <div class="section-title">Playbooks</div>
   <div class="grid" id="cardGrid"></div>
 
   <div class="section-title">Framework PnL in Context</div>
   <div class="chart-panel">
-    <div class="chart-head">
-      <h3>Cumulative P&amp;L by Framework</h3>
-    </div>
+    <div class="chart-head"><h3>Cumulative P&amp;L by Framework</h3></div>
     <div class="chart-sub">Running P&amp;L for each framework across every trade it appears in, plotted in trade sequence.</div>
     <div class="chart-canvas-wrap"><canvas id="mainChart"></canvas></div>
   </div>
 
-  <div class="footer-note">Synced from Notion · data.json regenerated automatically</div>
+  <div class="footer-note">Synced from Notion · data.json regenerated automatically · hover a playbook card for full stats</div>
 </div>
 
 <script>
@@ -287,7 +252,20 @@ function pnlColor(net){
   return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 }
 
-// draws a small label at the terminal point of each framework line, in place of a legend/key
+// a small rotating set of icons so each card reads distinctly, same idea as the
+// emoji glyphs on the reference dashboard (Gap and Go, No Setup, Opening Drive, ...)
+const ICONS = ['🚀','⚡','🎯','🌤️','🕒','🔁','📉','📈','🧭','⏱️','🌀','🪝'];
+function iconFor(name, idx){
+  const n = name.toLowerCase();
+  if (n.includes('no setup')) return '❌';
+  if (n.includes('open')) return '🚀';
+  if (n.includes('macro')) return '🔁';
+  if (n.includes('lunch')) return '🍽️';
+  if (n.includes('final') || n.includes('close')) return '🌙';
+  if (n.includes('h4') || n.includes('4hr') || n.includes('4 hr')) return '🧭';
+  return ICONS[idx % ICONS.length];
+}
+
 const lineEndLabelsPlugin = {
   id: 'lineEndLabels',
   afterDatasetsDraw(chart){
@@ -317,22 +295,19 @@ const lineEndLabelsPlugin = {
 // --- theme toggle ---
 const THEME_KEY = 'mmtrades-theme';
 const CHART_COLORS = {
-  dark:  { tick:'#8a8f98', grid:'#1c2027', legend:'#c7c9cf', tooltipBg:'#171b21', tooltipBorder:'#2a2f38' },
+  dark: { tick:'#8a8f98', grid:'#1c2027', legend:'#c7c9cf', tooltipBg:'#171b21', tooltipBorder:'#2a2f38' },
   light: { tick:'#6f6b60', grid:'#e4e1d8', legend:'#33362f', tooltipBg:'#ffffff', tooltipBorder:'#ded9cd' }
 };
 let mainChartInstance = null;
-
 function getTheme(){
   return localStorage.getItem(THEME_KEY) ||
     (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
 }
-
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
   document.getElementById('themeIcon').textContent = theme === 'light' ? '☀' : '☾';
   document.getElementById('themeLabel').textContent = theme === 'light' ? 'Light' : 'Dark';
   localStorage.setItem(THEME_KEY, theme);
-
   if (mainChartInstance){
     const c = CHART_COLORS[theme];
     const ch = mainChartInstance;
@@ -343,11 +318,9 @@ function applyTheme(theme){
     ch.update();
   }
 }
-
 document.getElementById('themeToggle').addEventListener('click', () => {
   applyTheme(getTheme() === 'light' ? 'dark' : 'light');
 });
-
 applyTheme(getTheme());
 
 function fmt(n){
@@ -356,7 +329,6 @@ function fmt(n){
 }
 
 let sparkInstances = [];
-
 function sparkline(canvas, series, color){
   const ctx = canvas.getContext('2d');
   const chart = new Chart(ctx, {
@@ -384,14 +356,10 @@ function sparkline(canvas, series, color){
   sparkInstances.push(chart);
 }
 
-// Mirrors the Daily Summary dashboard's staleness logic: the sync workflow
-// (.github/workflows/sync-playbook-data.yml) runs on the same 5-minute cadence,
-// so healthy data should basically never cross this threshold.
 const STALE_THRESHOLD_MINUTES = 20;
 let lastSyncedAt = null;
 let lastTradeCount = null;
 const metaLineEl = document.getElementById('metaLine');
-
 function relativeAgo(date){
   const minutesAgo = Math.max(0, Math.round((Date.now() - date.getTime()) / 60000));
   if(minutesAgo < 1) return { minutesAgo, ago: 'just now' };
@@ -399,7 +367,6 @@ function relativeAgo(date){
   if(minutesAgo < 1440) return { minutesAgo, ago: Math.round(minutesAgo / 60) + ' hr ago' };
   return { minutesAgo, ago: Math.round(minutesAgo / 1440) + ' days ago' };
 }
-
 function renderSyncedLine(){
   if(!lastSyncedAt) return;
   const { minutesAgo, ago } = relativeAgo(lastSyncedAt);
@@ -409,10 +376,6 @@ function renderSyncedLine(){
     : `Synced ${ago} · ${lastTradeCount} trades`;
   metaLineEl.className = 'meta' + (isStale ? ' stale' : '');
 }
-
-// Same criteria drives both the header meta line and the sync button — both
-// read straight off data.generated_at. Keep the "X min ago" label ticking,
-// and re-flag staleness, without needing a page reload or re-fetch.
 function setSyncedLine(data){
   lastSyncedAt = new Date(data.generated_at);
   lastTradeCount = data.total_trades;
@@ -434,10 +397,8 @@ function loadData(){
     })
     .then(data=>{
       setSyncedLine(data);
-
       const totalPositive = data.total_pnl >= 0;
 
-      // clear previous render before rebuilding (needed for re-sync)
       destroyExistingCharts();
       document.getElementById('cardGrid').innerHTML = '';
 
@@ -450,7 +411,6 @@ function loadData(){
 
       const best = data.frameworks[0];
       const worst = data.frameworks[data.frameworks.length-1];
-
       document.getElementById('summaryRow').innerHTML = `
         <div class="stat-pill">
           <div class="label">Net P&amp;L (account)</div>
@@ -470,52 +430,79 @@ function loadData(){
         </div>
       `;
 
-
       const grid = document.getElementById('cardGrid');
       data.frameworks.forEach((fw, i) => {
         const bucket = pnlBucket(fw.net_pnl);
+        const ringVar = bucket === 'win' ? 'var(--win)' : bucket === 'loss' ? 'var(--loss)' : 'var(--ink-dim)';
+        const pnlClass = bucket==='win'?'pos':bucket==='loss'?'neg':'flat';
+        const pf = fw.profit_factor === null ? '∞' : fw.profit_factor;
         const card = document.createElement('div');
         card.className = 'card';
+        card.tabIndex = 0;
         card.innerHTML = `
           <div class="card-top">
-            <div class="card-name">${fw.name}</div>
-            <div class="badge ${bucket}">${fw.trades} trade${fw.trades===1?'':'s'}</div>
+            <div class="card-id">
+              <div class="card-icon">${iconFor(fw.name, i)}</div>
+              <div class="card-name-wrap">
+                <div class="card-name" title="${fw.name}">${fw.name}</div>
+                <div class="card-sub">${fw.trades} trade${fw.trades===1?'':'s'}</div>
+              </div>
+            </div>
+            <div class="badge"><span class="lock">🔒</span>Private</div>
           </div>
+
           <div class="card-metrics">
-            <div>
-              <div class="metric-label">Win Rate</div>
-              <div class="metric-value">${fw.win_rate}%</div>
+            <div class="ring" style="--pct:${fw.win_rate}; --ring-color:${ringVar}">
+              <div class="ring-label">${fw.win_rate}%<br>win</div>
             </div>
-            <div style="text-align:right">
-              <div class="metric-label">Net P&amp;L</div>
-              <div class="metric-value ${bucket==='win'?'pos':bucket==='loss'?'neg':'flat'}">${fmt(fw.net_pnl)}</div>
+            <div class="metrics-cols">
+              <div class="metric-block">
+                <div class="metric-label">Net P&amp;L</div>
+                <div class="metric-value ${pnlClass}">${fmt(fw.net_pnl)}</div>
+              </div>
             </div>
           </div>
+
           <div class="spark-wrap"><canvas class="spark" id="spark-${i}"></canvas></div>
-          <div class="card-foot">
-            <span>PF <b>${fw.profit_factor === null ? '∞' : fw.profit_factor}</b></span>
-            <span>Expectancy <b class="${fw.expectancy>0?'pos':fw.expectancy<0?'neg':'flat'}">${fmt(fw.expectancy)}</b></span>
-            <span>Avg W/L <b>${fmt(fw.avg_win)} / ${fmt(-fw.avg_loss)}</b></span>
+
+          <div class="card-details">
+            <div class="details-grid">
+              <div>
+                <div class="metric-label">Profit factor</div>
+                <div class="metric-value">${pf}</div>
+              </div>
+              <div>
+                <div class="metric-label">Win / Loss / BE</div>
+                <div class="metric-value">${fw.wins} / ${fw.losses} / ${fw.be}</div>
+              </div>
+              <div>
+                <div class="metric-label">Expectancy</div>
+                <div class="metric-value ${fw.expectancy>0?'pos':fw.expectancy<0?'neg':'flat'}">${fmt(fw.expectancy)}</div>
+              </div>
+              <div>
+                <div class="metric-label">Average winner</div>
+                <div class="metric-value pos">${fmt(fw.avg_win)}</div>
+              </div>
+              <div>
+                <div class="metric-label">Average loser</div>
+                <div class="metric-value neg">${fmt(-fw.avg_loss)}</div>
+              </div>
+            </div>
           </div>
+          <div class="hover-hint">hover for details</div>
         `;
         grid.appendChild(card);
       });
 
-      // draw sparklines after DOM insert
       data.frameworks.forEach((fw, i)=>{
         const c = document.getElementById('spark-'+i);
         if (c && fw.series.length) sparkline(c, fw.series, pnlColor(fw.net_pnl));
       });
 
-      // safety net: once the grid has fully settled into its final layout,
-      // force every sparkline to recompute its size against the real
-      // (now-stable) 36px spark-wrap box rather than whatever it measured
-      // at creation time
       requestAnimationFrame(() => {
         sparkInstances.forEach(c => c.resize());
       });
 
-      // main combined chart — union of dates
       const allDates = [...new Set(data.frameworks.flatMap(f=>f.series.map(p=>p.date)))].sort();
       const datasets = data.frameworks.map((fw,i)=>{
         const map = Object.fromEntries(fw.series.map(p=>[p.date,p.cum]));
@@ -537,7 +524,6 @@ function loadData(){
         };
       });
 
-      // dashed zero-reference line, drawn behind the framework lines
       const zeroLine = {
         label: '__zero__',
         _isBaseline: true,
@@ -593,7 +579,6 @@ function loadData(){
 const syncBtn = document.getElementById('syncBtn');
 const syncIcon = document.getElementById('syncIcon');
 const syncLabel = document.getElementById('syncLabel');
-
 function runSync(){
   syncBtn.disabled = true;
   syncIcon.classList.add('spin');
@@ -607,7 +592,6 @@ function runSync(){
       setTimeout(() => { syncLabel.textContent = 'Sync'; }, 2000);
     });
 }
-
 syncBtn.addEventListener('click', runSync);
 
 if (document.readyState === 'loading') {
@@ -616,10 +600,7 @@ if (document.readyState === 'loading') {
   loadData();
 }
 
-// Auto-refresh: re-sync data.json every 5 minutes without a full page reload.
-// Only runs the auto-sync while the tab is actually visible, so it doesn't
-// hammer data.json in background tabs.
-const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
+const AUTO_REFRESH_MS = 5 * 60 * 1000;
 setInterval(() => {
   if (document.visibilityState === 'visible') {
     runSync();
