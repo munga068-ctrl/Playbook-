@@ -331,18 +331,26 @@ function fmt(n){
 let sparkInstances = [];
 function sparkline(canvas, series, color){
   const ctx = canvas.getContext('2d');
+  // a single-trade playbook has just one data point, and a line chart has
+  // nothing to draw a line between — synthesize a flat lead-in from 0 so a
+  // visible segment renders, with a dot marking the actual trade.
+  const singlePoint = series.length === 1;
+  const labels = singlePoint ? ['', series[0].date] : series.map(p=>p.date);
+  const values = singlePoint ? [0, series[0].cum] : series.map(p=>p.cum);
   const chart = new Chart(ctx, {
     type:'line',
     data:{
-      labels: series.map(p=>p.date),
+      labels,
       datasets:[{
-        data: series.map(p=>p.cum),
+        data: values,
         borderColor: color,
         borderWidth: 1.6,
-        pointRadius: 0,
+        pointRadius: singlePoint ? [0, 3] : 0,
+        pointBackgroundColor: color,
+        pointBorderColor: color,
         fill: true,
         backgroundColor: color + '22',
-        tension: 0.25
+        tension: singlePoint ? 0 : 0.25
       }]
     },
     options:{
