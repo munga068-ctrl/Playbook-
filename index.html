@@ -192,6 +192,35 @@ header{
 .chart-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
 .chart-head h3{ font-weight:500; font-size:16px; margin:0; }
 .chart-sub{ font-size:11.5px; color:var(--ink-dim); margin-bottom:16px; }
+.chart-controls{ display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+.seg-control{ display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.seg-btn{
+  background:var(--panel); border:none; border-right:1px solid var(--line);
+  color:var(--ink-dim); font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:11px; padding:6px 13px; cursor:pointer; transition:background-color .15s ease, color .15s ease;
+}
+.seg-btn:last-child{ border-right:none; }
+.seg-btn:hover{ color:var(--ink); }
+.seg-btn.active{ background:var(--gold-soft); color:var(--gold); }
+.chip-btn{
+  background:var(--panel); border:1px solid var(--line); color:var(--ink-dim);
+  font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:11px; padding:6px 13px; border-radius:20px; cursor:pointer;
+  transition:border-color .15s ease, color .15s ease;
+}
+.chip-btn:hover{ border-color:var(--gold); color:var(--ink); }
+.legend-pills{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.legend-pill{
+  display:flex; align-items:center; gap:6px;
+  border:1px solid var(--line); border-radius:20px; padding:4px 11px 4px 8px;
+  font-size:10.5px; font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  color:var(--ink-dim); cursor:pointer; background:var(--panel);
+  transition:opacity .15s ease, border-color .15s ease, color .15s ease;
+}
+.legend-pill:hover{ border-color:var(--gold); color:var(--ink); }
+.legend-pill .dot{ width:8px; height:8px; border-radius:50%; flex:0 0 8px; }
+.legend-pill.solo{ border-color:var(--gold); color:var(--ink); background:var(--gold-soft); }
+.legend-pill.dimmed{ opacity:0.4; }
 .chart-canvas-wrap{ position:relative; height:480px; width:100%; }
 #mainChart{ width:100% !important; height:100% !important; }
 .footer-note{ margin-top:30px; font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:10.5px; color:var(--ink-dim); text-align:center; }
@@ -234,6 +263,15 @@ header{
   <div class="chart-panel">
     <div class="chart-head"><h3>Cumulative P&amp;L by Framework</h3></div>
     <div class="chart-sub">Running P&amp;L for each framework across every trade it appears in, plotted in trade sequence.</div>
+    <div class="chart-controls">
+      <div class="seg-control" id="viewModeControl">
+        <button class="seg-btn active" type="button" data-mode="all">All</button>
+        <button class="seg-btn" type="button" data-mode="winners">Winners</button>
+        <button class="seg-btn" type="button" data-mode="losers">Losers</button>
+      </div>
+      <button class="chip-btn" id="showAllBtn" type="button">Show all</button>
+    </div>
+    <div class="legend-pills" id="legendPills"></div>
     <div class="chart-canvas-wrap"><canvas id="mainChart"></canvas></div>
   </div>
 
@@ -266,14 +304,18 @@ function iconFor(name, idx){
   return ICONS[idx % ICONS.length];
 }
 
+// shared state driving the chart's legend pills, winners/losers toggle,
+// top-5 cap, and card-hover highlighting — persists across data reloads
+let chartState = { soloName: null, viewMode: 'all', showAll: false, hoverName: null };
+let frameworksMeta = []; // [{name, color, netPnl, absPnl, datasetIndex}], rebuilt on each load
+
 const lineEndLabelsPlugin = {
   id: 'lineEndLabels',
   afterDatasetsDraw(chart){
     const {ctx, chartArea} = chart;
-    ctx.save();
-    ctx.font = "10px -apple-system, 'Segoe UI', Roboto, sans-serif";
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'left';
+    const minGap = 13;
+    const hoverName = chart.$hoverName || null;
+    const items = [];
     chart.data.datasets.forEach((ds, i) => {
       if (ds._isBaseline) return;
       const meta = chart.getDatasetMeta(i);
@@ -284,9 +326,29 @@ const lineEndLabelsPlugin = {
       while (idx >= 0 && (ds.data[idx] === null || ds.data[idx] === undefined)) idx--;
       if (idx < 0) return;
       const pt = points[idx];
-      const y = Math.max(chartArea.top + 6, Math.min(chartArea.bottom - 6, pt.y));
-      ctx.fillStyle = ds.borderColor;
-      ctx.fillText(ds.label, pt.x + 6, y);
+      const rawY = Math.max(chartArea.top + 6, Math.min(chartArea.bottom - 6, pt.y));
+      items.push({ label: ds.label, color: ds.borderColor, x: pt.x, y: rawY });
+    });
+    // de-collide: sort top-to-bottom, push overlapping labels apart, then
+    // pull the whole stack back inside the chart area if it ran over the bottom
+    items.sort((a,b)=>a.y-b.y);
+    for(let i=1;i<items.length;i++){
+      if (items[i].y - items[i-1].y < minGap) items[i].y = items[i-1].y + minGap;
+    }
+    if (items.length){
+      const overflow = items[items.length-1].y - (chartArea.bottom - 4);
+      if (overflow > 0) items.forEach(it => it.y -= overflow);
+    }
+    ctx.save();
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    items.forEach(it=>{
+      const isHovered = hoverName && it.label === hoverName;
+      ctx.font = isHovered
+        ? "bold 10px -apple-system, 'Segoe UI', Roboto, sans-serif"
+        : "10px -apple-system, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = it.color;
+      ctx.fillText(it.label, it.x + 6, it.y);
     });
     ctx.restore();
   }
@@ -397,6 +459,87 @@ function destroyExistingCharts(){
   sparkInstances = [];
 }
 
+// recomputes which framework lines are hidden, based on: an active solo
+// selection (overrides everything else), the winners/losers toggle, and the
+// default top-5-by-|P&L| cap (bypassed once "Show all" is clicked)
+function applyVisibility(){
+  if (!mainChartInstance) return;
+  const chart = mainChartInstance;
+  let eligible = frameworksMeta.filter(fw=>{
+    if (chartState.viewMode === 'winners') return fw.netPnl > 0;
+    if (chartState.viewMode === 'losers') return fw.netPnl < 0;
+    return true;
+  });
+  eligible.sort((a,b)=> b.absPnl - a.absPnl);
+  const capped = chartState.showAll ? eligible : eligible.slice(0,5);
+  const visibleNames = new Set(capped.map(f=>f.name));
+
+  frameworksMeta.forEach(fw=>{
+    const meta = chart.getDatasetMeta(fw.datasetIndex);
+    meta.hidden = chartState.soloName ? (fw.name !== chartState.soloName) : !visibleNames.has(fw.name);
+  });
+  chart.update();
+
+  const showAllBtn = document.getElementById('showAllBtn');
+  if (showAllBtn){
+    if (eligible.length <= 5){
+      showAllBtn.style.display = 'none';
+    } else {
+      showAllBtn.style.display = '';
+      showAllBtn.textContent = chartState.showAll ? 'Show top 5' : `Show all (${eligible.length})`;
+    }
+  }
+  document.querySelectorAll('#viewModeControl .seg-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.mode === chartState.viewMode);
+  });
+  renderLegendPills();
+}
+
+// dims every line except the one matching hoverName (driven by hovering/
+// focusing a playbook card above), so the card and chart stay in sync
+function applyHoverStyle(){
+  if (!mainChartInstance) return;
+  const chart = mainChartInstance;
+  chart.$hoverName = chartState.hoverName;
+  frameworksMeta.forEach(fw=>{
+    const ds = chart.data.datasets[fw.datasetIndex];
+    if (!ds) return;
+    if (!chartState.hoverName){
+      ds.borderColor = fw.color;
+      ds.borderWidth = 1.25;
+    } else if (fw.name === chartState.hoverName){
+      ds.borderColor = fw.color;
+      ds.borderWidth = 3;
+    } else {
+      ds.borderColor = fw.color + '30';
+      ds.borderWidth = 1;
+    }
+  });
+  chart.update('none');
+}
+
+function renderLegendPills(){
+  const wrap = document.getElementById('legendPills');
+  if (!wrap || !mainChartInstance) return;
+  wrap.innerHTML = frameworksMeta.map(fw=>{
+    const meta = mainChartInstance.getDatasetMeta(fw.datasetIndex);
+    const isSolo = chartState.soloName === fw.name;
+    const cls = ['legend-pill'];
+    if (isSolo) cls.push('solo');
+    else if (meta.hidden) cls.push('dimmed');
+    return `<button type="button" class="${cls.join(' ')}" data-name="${fw.name.replace(/"/g,'&quot;')}">
+      <span class="dot" style="background:${fw.color}"></span>${fw.name}
+    </button>`;
+  }).join('');
+  wrap.querySelectorAll('.legend-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const name = btn.dataset.name;
+      chartState.soloName = (chartState.soloName === name) ? null : name;
+      applyVisibility();
+    });
+  });
+}
+
 function loadData(){
   return fetch('data.json', { cache: 'no-store' })
     .then(r=>{
@@ -500,6 +643,10 @@ function loadData(){
           <div class="hover-hint">hover for details</div>
         `;
         grid.appendChild(card);
+        card.addEventListener('mouseenter', () => { chartState.hoverName = fw.name; applyHoverStyle(); });
+        card.addEventListener('mouseleave', () => { chartState.hoverName = null; applyHoverStyle(); });
+        card.addEventListener('focusin', () => { chartState.hoverName = fw.name; applyHoverStyle(); });
+        card.addEventListener('focusout', () => { chartState.hoverName = null; applyHoverStyle(); });
       });
 
       data.frameworks.forEach((fw, i)=>{
@@ -515,9 +662,11 @@ function loadData(){
       const datasets = data.frameworks.map((fw,i)=>{
         const map = Object.fromEntries(fw.series.map(p=>[p.date,p.cum]));
         let last = null;
-        const vals = allDates.map(d=>{
-          if (map[d] !== undefined){ last = map[d]; return map[d]; }
-          return last;
+        const vals = [];
+        const radii = [];
+        allDates.forEach(d=>{
+          if (map[d] !== undefined){ last = map[d]; vals.push(map[d]); radii.push(3); }
+          else { vals.push(last); radii.push(0); }
         });
         const color = pnlColor(fw.net_pnl);
         return {
@@ -526,11 +675,22 @@ function loadData(){
           borderColor: color,
           backgroundColor: color,
           borderWidth: 1.25,
-          pointRadius: 0,
+          pointRadius: radii,
+          pointHoverRadius: radii.map(r => r ? 5 : 3),
+          pointBackgroundColor: color,
+          pointBorderColor: color,
           stepped: true,
           spanGaps: true
         };
       });
+
+      frameworksMeta = data.frameworks.map((fw,i)=>({
+        name: fw.name,
+        color: pnlColor(fw.net_pnl),
+        netPnl: fw.net_pnl,
+        absPnl: Math.abs(fw.net_pnl),
+        datasetIndex: i + 1 // +1 to account for the zero baseline unshifted below
+      }));
 
       const zeroLine = {
         label: '__zero__',
@@ -575,6 +735,8 @@ function loadData(){
           }
         }
       });
+      chartState.hoverName = null;
+      applyVisibility();
     })
     .catch(err=>{
       metaLineEl.textContent = 'sync error: ' + err.message;
@@ -601,6 +763,18 @@ function runSync(){
     });
 }
 syncBtn.addEventListener('click', runSync);
+
+document.querySelectorAll('#viewModeControl .seg-btn').forEach(btn=>{
+  btn.addEventListener('click', () => {
+    chartState.viewMode = btn.dataset.mode;
+    chartState.soloName = null;
+    applyVisibility();
+  });
+});
+document.getElementById('showAllBtn').addEventListener('click', () => {
+  chartState.showAll = !chartState.showAll;
+  applyVisibility();
+});
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', loadData);
