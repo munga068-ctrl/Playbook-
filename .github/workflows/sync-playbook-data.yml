@@ -2,11 +2,17 @@ name: Sync Notion data
 
 on:
   schedule:
-    - cron: '*/15 * * * *'   # every 15 minutes
-  workflow_dispatch:        # lets you trigger it manually from the Actions tab
+    - cron: '*/15 * * * *'   # backup only — unreliable on its own, see cron-job.org trigger below
+  workflow_dispatch: {}      # lets cron-job.org (and you, manually) trigger this on demand
 
 permissions:
-  contents: write            # needed so the workflow can push data.json back
+  contents: write
+
+# Only one sync run at a time — prevents overlapping runs from racing to push
+# and rejecting each other.
+concurrency:
+  group: sync-playbook-data
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -28,10 +34,28 @@ jobs:
           NOTION_PM_FRAMEWORK_DATA_SOURCE_ID: ${{ secrets.NOTION_PM_FRAMEWORK_DATA_SOURCE_ID }}
         run: python sync_notion.py
 
-      - name: Commit and push if data changed
+      - name: Commit and push (retries if main moved since checkout)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json
-          git diff --cached --quiet || git commit -m "chore: sync Notion data [skip ci]"
-          git push
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: sync Notion data [skip ci]"
+
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "Pushed successfully."
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt) — main moved since checkout. Rebasing and retrying..."
+            git fetch origin main
+            git rebase origin/main
+            sleep $((attempt * 3))
+          done
+
+          echo "Failed to push after 5 attempts."
+          exit 1
