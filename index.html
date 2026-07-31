@@ -47,7 +47,21 @@ body{
   font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
   padding:28px 24px 60px;
 }
-.wrap{max-width:1180px;margin:0 auto;}
+.wrap{max-width:1600px;margin:0 auto;}
+
+/* ---------- Side-by-side layout: playbooks left, framework PnL chart right ---------- */
+.main-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 400px;
+  gap:28px;
+  align-items:start;
+}
+.playbooks-col{ min-width:0; }
+.framework-col{ min-width:0; position:sticky; top:20px; }
+@media (max-width:980px){
+  .main-layout{ grid-template-columns:1fr; }
+  .framework-col{ position:static; }
+}
 header{
   display:flex;
   align-items:baseline;
@@ -256,23 +270,29 @@ header{
 
   <div class="summary-row" id="summaryRow"></div>
 
-  <div class="section-title">Playbooks</div>
-  <div class="grid" id="cardGrid"></div>
-
-  <div class="section-title">Framework PnL in Context</div>
-  <div class="chart-panel">
-    <div class="chart-head"><h3>Cumulative P&amp;L by Framework</h3></div>
-    <div class="chart-sub">Running P&amp;L for each framework across every trade it appears in, plotted in trade sequence.</div>
-    <div class="chart-controls">
-      <div class="seg-control" id="viewModeControl">
-        <button class="seg-btn active" type="button" data-mode="all">All</button>
-        <button class="seg-btn" type="button" data-mode="winners">Winners</button>
-        <button class="seg-btn" type="button" data-mode="losers">Losers</button>
-      </div>
-      <button class="chip-btn" id="showAllBtn" type="button">Show all</button>
+  <div class="main-layout">
+    <div class="playbooks-col">
+      <div class="section-title">Playbooks</div>
+      <div class="grid" id="cardGrid"></div>
     </div>
-    <div class="legend-pills" id="legendPills"></div>
-    <div class="chart-canvas-wrap"><canvas id="mainChart"></canvas></div>
+
+    <div class="framework-col">
+      <div class="section-title">Framework PnL in Context</div>
+      <div class="chart-panel">
+        <div class="chart-head"><h3>Cumulative P&amp;L by Framework</h3></div>
+        <div class="chart-sub">Running P&amp;L for each framework across every trade it appears in, plotted in trade sequence.</div>
+        <div class="chart-controls">
+          <div class="seg-control" id="viewModeControl">
+            <button class="seg-btn active" type="button" data-mode="all">All</button>
+            <button class="seg-btn" type="button" data-mode="winners">Winners</button>
+            <button class="seg-btn" type="button" data-mode="losers">Losers</button>
+          </div>
+          <button class="chip-btn" id="showAllBtn" type="button">Show all</button>
+        </div>
+        <div class="legend-pills" id="legendPills"></div>
+        <div class="chart-canvas-wrap"><canvas id="mainChart"></canvas></div>
+      </div>
+    </div>
   </div>
 
   <div class="footer-note">Synced from Notion · data.json regenerated automatically · hover a playbook card for full stats</div>
