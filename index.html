@@ -802,7 +802,13 @@ function loadData(){
               titleFont:{family:'ui-monospace',size:11},
               bodyFont:{family:'ui-monospace',size:12,weight:'600'},
               filter: item => item.dataset.label !== '__zero__',
-              callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` }
+              callbacks:{
+                label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`,
+                labelTextColor: ctx => {
+                  const varName = ctx.parsed.y > 0 ? '--win' : (ctx.parsed.y < 0 ? '--loss' : '--ink-dim');
+                  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+                }
+              }
             }
           }
         }
