@@ -237,6 +237,27 @@ header{
 .legend-pill.dimmed{ opacity:0.4; }
 .chart-canvas-wrap{ position:relative; height:560px; width:100%; }
 #mainChart{ width:100% !important; height:100% !important; }
+.chart-tooltip{
+  position:absolute;
+  pointer-events:none;
+  z-index:20;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  padding:8px 10px;
+  font-size:11.5px;
+  font-family:ui-monospace, monospace;
+  box-shadow:0 6px 20px rgba(0,0,0,.18);
+  opacity:0;
+  transition:opacity .08s ease;
+  white-space:nowrap;
+}
+.chart-tooltip .ctt-title{ color:var(--ink-dim); margin-bottom:4px; font-size:10.5px; }
+.chart-tooltip .ctt-row{ display:flex; align-items:center; gap:6px; font-weight:600; }
+.chart-tooltip .ctt-row + .ctt-row{ margin-top:3px; }
+.chart-tooltip .ctt-swatch{ width:8px; height:8px; border-radius:2px; flex:0 0 8px; }
+.chart-tooltip .ctt-name{ color:var(--ink); font-weight:500; }
+.chart-tooltip .ctt-value{ font-weight:700; }
 .footer-note{ margin-top:30px; font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:10.5px; color:var(--ink-dim); text-align:center; }
 .header-right{ display:flex; align-items:center; gap:14px; }
 .theme-toggle{
@@ -290,7 +311,7 @@ header{
           <button class="chip-btn" id="showAllBtn" type="button">Show all</button>
         </div>
         <div class="legend-pills" id="legendPills"></div>
-        <div class="chart-canvas-wrap"><canvas id="mainChart"></canvas></div>
+        <div class="chart-canvas-wrap"><canvas id="mainChart"></canvas><div id="chartTooltip" class="chart-tooltip"></div></div>
       </div>
     </div>
   </div>
@@ -777,6 +798,38 @@ function loadData(){
       datasets.unshift(zeroLine);
 
       const cc = CHART_COLORS[getTheme()];
+
+      // custom HTML tooltip so the playbook name stays neutral and only the
+      // $ value is colored green/red by sign — Chart.js's built-in canvas
+      // tooltip can only color a whole line at once, not part of one.
+      function renderChartTooltip(context){
+        const {chart, tooltip} = context;
+        const el = document.getElementById('chartTooltip');
+        if (!el) return;
+        if (tooltip.opacity === 0){ el.style.opacity = 0; return; }
+        const rows = (tooltip.dataPoints || []).map(dp => {
+          const v = dp.parsed.y;
+          const varName = v > 0 ? '--win' : (v < 0 ? '--loss' : '--ink-dim');
+          const valColor = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+          const swatch = dp.dataset.borderColor || valColor;
+          return `<div class="ctt-row">
+            <span class="ctt-swatch" style="background:${swatch}"></span>
+            <span class="ctt-name">${dp.dataset.label}:</span>
+            <span class="ctt-value" style="color:${valColor}">${fmt(v)}</span>
+          </div>`;
+        }).join('');
+        const title = (tooltip.title || [])[0] || '';
+        el.innerHTML = `<div class="ctt-title">${title}</div>${rows}`;
+        el.style.opacity = 1;
+        const {offsetLeft, offsetTop} = chart.canvas;
+        let x = offsetLeft + tooltip.caretX + 14;
+        let y = offsetTop + tooltip.caretY - el.offsetHeight / 2;
+        const maxX = offsetLeft + chart.canvas.clientWidth - el.offsetWidth - 6;
+        if (x > maxX) x = offsetLeft + tooltip.caretX - el.offsetWidth - 14;
+        el.style.left = x + 'px';
+        el.style.top = Math.max(offsetTop, y) + 'px';
+      }
+
       mainChartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
         type:'line',
         data:{ labels: allDates, datasets },
@@ -793,22 +846,9 @@ function loadData(){
           plugins:{
             legend:{ display:false },
             tooltip:{
-              backgroundColor:cc.tooltipBg,
-              borderColor:cc.tooltipBorder,
-              borderWidth:1,
-              titleColor:cc.tooltipTitle,
-              bodyColor:cc.tooltipBody,
-              padding:10,
-              titleFont:{family:'ui-monospace',size:11},
-              bodyFont:{family:'ui-monospace',size:12,weight:'600'},
+              enabled:false,
               filter: item => item.dataset.label !== '__zero__',
-              callbacks:{
-                label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`,
-                labelTextColor: ctx => {
-                  const varName = ctx.parsed.y > 0 ? '--win' : (ctx.parsed.y < 0 ? '--loss' : '--ink-dim');
-                  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-                }
-              }
+              external: renderChartTooltip
             }
           }
         }
