@@ -363,8 +363,8 @@ const lineEndLabelsPlugin = {
 // --- theme toggle ---
 const THEME_KEY = 'mmtrades-theme';
 const CHART_COLORS = {
-  dark: { tick:'#8a8f98', grid:'#1c2027', legend:'#c7c9cf', tooltipBg:'#171b21', tooltipBorder:'#2a2f38' },
-  light: { tick:'#6f6b60', grid:'#e4e1d8', legend:'#33362f', tooltipBg:'#ffffff', tooltipBorder:'#ded9cd' }
+  dark: { tick:'#8a8f98', grid:'#1c2027', legend:'#c7c9cf', tooltipBg:'#171b21', tooltipBorder:'#2a2f38', tooltipTitle:'#e9e6de', tooltipBody:'#c7c9cf' },
+  light: { tick:'#6f6b60', grid:'#e4e1d8', legend:'#33362f', tooltipBg:'#ffffff', tooltipBorder:'#ded9cd', tooltipTitle:'#21201c', tooltipBody:'#33362f' }
 };
 let mainChartInstance = null;
 function getTheme(){
@@ -383,6 +383,8 @@ function applyTheme(theme){
     ch.options.scales.y.ticks.color = c.tick;
     ch.options.plugins.tooltip.backgroundColor = c.tooltipBg;
     ch.options.plugins.tooltip.borderColor = c.tooltipBorder;
+    ch.options.plugins.tooltip.titleColor = c.tooltipTitle;
+    ch.options.plugins.tooltip.bodyColor = c.tooltipBody;
     ch.update();
   }
 }
@@ -794,10 +796,13 @@ function loadData(){
               backgroundColor:cc.tooltipBg,
               borderColor:cc.tooltipBorder,
               borderWidth:1,
+              titleColor:cc.tooltipTitle,
+              bodyColor:cc.tooltipBody,
+              padding:10,
               titleFont:{family:'ui-monospace',size:11},
-              bodyFont:{family:'ui-monospace',size:11},
+              bodyFont:{family:'ui-monospace',size:12,weight:'600'},
               filter: item => item.dataset.label !== '__zero__',
-              callbacks:{ label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}` }
+              callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` }
             }
           }
         }
