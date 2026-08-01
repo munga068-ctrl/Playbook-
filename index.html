@@ -403,6 +403,30 @@ function signColor(v){
   return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 }
 
+// per-segment line color: if a segment stays entirely on one side of zero,
+// it's a flat color. If it crosses zero (like a trade going from deep
+// negative to positive in one hop), build a gradient along that segment's
+// own pixel path that switches red->green at the interpolated point where
+// the value actually crosses zero — otherwise a segment could read as "all
+// red" even though half of it is drawn above the green fill.
+function segmentLineColor(c){
+  const {p0, p1, chart} = c;
+  const y0 = p0.parsed.y, y1 = p1.parsed.y;
+  const win = getComputedStyle(document.documentElement).getPropertyValue('--win').trim() + 'b3';
+  const loss = getComputedStyle(document.documentElement).getPropertyValue('--loss').trim() + 'b3';
+  if (y0 >= 0 && y1 >= 0) return win;
+  if (y0 <= 0 && y1 <= 0) return loss;
+  const frac = Math.min(1, Math.max(0, Math.abs(y0) / (Math.abs(y0) + Math.abs(y1))));
+  const c0 = y0 >= 0 ? win : loss;
+  const c1 = y1 >= 0 ? win : loss;
+  const grad = chart.ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+  grad.addColorStop(0, c0);
+  grad.addColorStop(frac, c0);
+  grad.addColorStop(frac, c1);
+  grad.addColorStop(1, c1);
+  return grad;
+}
+
 // separate vertical-fade fills for the portion of the area above zero and
 // the portion below zero. Chart.js clips "above"/"below" to the correct side
 // of the target line on its own, so green can never leak into the red side
@@ -446,7 +470,7 @@ function sparkline(canvas, series){
         borderColor: endColor + 'b3',
         borderWidth: 1.2,
         segment:{
-          borderColor: c => signColor((c.p0.parsed.y + c.p1.parsed.y) / 2) + 'b3'
+          borderColor: segmentLineColor
         },
         pointRadius: singlePoint ? [0, 3] : 0,
         pointBackgroundColor: endColor,
