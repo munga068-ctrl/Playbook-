@@ -403,6 +403,27 @@ function signColor(v){
   return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 }
 
+// vertical gradient for the fill under a sparkline: solid-ish near the line,
+// fading out to fully transparent by the zero baseline (or the edge of the
+// chart, for lines that never cross zero) — mirrors the faded-area look of
+// the all-time chart instead of a flat translucent fill.
+function fadeFill(context){
+  const chart = context.chart;
+  const {ctx, chartArea, scales} = chart;
+  if (!chartArea) return null;
+  const yScale = scales.y;
+  const zeroY = Math.min(chartArea.bottom, Math.max(chartArea.top, yScale.getPixelForValue(0)));
+  const winColor = getComputedStyle(document.documentElement).getPropertyValue('--win').trim();
+  const lossColor = getComputedStyle(document.documentElement).getPropertyValue('--loss').trim();
+  const zeroFrac = (zeroY - chartArea.top) / (chartArea.bottom - chartArea.top);
+  const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  grad.addColorStop(0, winColor + '3d');
+  grad.addColorStop(Math.max(0, zeroFrac - 0.001), winColor + '00');
+  grad.addColorStop(Math.min(1, zeroFrac + 0.001), lossColor + '00');
+  grad.addColorStop(1, lossColor + '3d');
+  return grad;
+}
+
 let sparkInstances = [];
 function sparkline(canvas, series){
   const ctx = canvas.getContext('2d');
@@ -419,16 +440,16 @@ function sparkline(canvas, series){
       labels,
       datasets:[{
         data: values,
-        borderColor: endColor,
+        borderColor: endColor + 'b3',
         borderWidth: 1.2,
         segment:{
-          borderColor: c => signColor((c.p0.parsed.y + c.p1.parsed.y) / 2),
-          backgroundColor: c => signColor((c.p0.parsed.y + c.p1.parsed.y) / 2) + '26'
+          borderColor: c => signColor((c.p0.parsed.y + c.p1.parsed.y) / 2) + 'b3'
         },
         pointRadius: singlePoint ? [0, 3] : 0,
         pointBackgroundColor: endColor,
         pointBorderColor: endColor,
         fill: { target: { value: 0 } },
+        backgroundColor: fadeFill,
         tension: singlePoint ? 0 : 0.25
       }]
     },
