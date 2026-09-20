@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-20T05:35:11.936437+00:00",
-  "total_trades": 43,
-  "total_pnl": -294.39,
-  "multi_tagged_trades": 14,
-  "attributed_pnl_total": 261.65,
+  "generated_at": "2026-09-20T05:40:15.260343+00:00",
+  "total_trades": 46,
+  "total_pnl": -318.45,
+  "multi_tagged_trades": 15,
+  "attributed_pnl_total": 299.28,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -176,6 +176,18 @@
     {
       "date": "2026-09-14",
       "cum": -294.39
+    },
+    {
+      "date": "2026-09-17",
+      "cum": -343.55
+    },
+    {
+      "date": "2026-09-18",
+      "cum": -380.14
+    },
+    {
+      "date": "2026-09-20",
+      "cum": -318.45
     }
   ],
   "frameworks": [
@@ -314,16 +326,16 @@
     },
     {
       "name": "10:50-11:10-Lunch Hour Macro",
-      "trades": 8,
-      "wins": 3,
-      "losses": 5,
+      "trades": 10,
+      "wins": 4,
+      "losses": 6,
       "be": 0,
-      "win_rate": 37.5,
-      "net_pnl": 189.42,
-      "avg_win": 149.97,
-      "avg_loss": 52.1,
-      "profit_factor": 1.73,
-      "expectancy": 23.68,
+      "win_rate": 40.0,
+      "net_pnl": 201.95,
+      "avg_win": 127.9,
+      "avg_loss": 51.61,
+      "profit_factor": 1.65,
+      "expectancy": 20.2,
       "series": [
         {
           "date": "2026-01-06",
@@ -356,6 +368,57 @@
         {
           "date": "2026-09-10",
           "cum": 189.42
+        },
+        {
+          "date": "2026-09-17",
+          "cum": 140.26
+        },
+        {
+          "date": "2026-09-20",
+          "cum": 201.95
+        }
+      ]
+    },
+    {
+      "name": "10 AM 4HR PO3",
+      "trades": 7,
+      "wins": 2,
+      "losses": 5,
+      "be": 0,
+      "win_rate": 28.57,
+      "net_pnl": 4.69,
+      "avg_win": 130.78,
+      "avg_loss": 51.37,
+      "profit_factor": 1.02,
+      "expectancy": 0.67,
+      "series": [
+        {
+          "date": "2026-02-19",
+          "cum": -66.46
+        },
+        {
+          "date": "2026-07-09",
+          "cum": -115.25
+        },
+        {
+          "date": "2026-07-16",
+          "cum": 84.62
+        },
+        {
+          "date": "2026-07-23",
+          "cum": 45.78
+        },
+        {
+          "date": "2026-09-04",
+          "cum": 6.0
+        },
+        {
+          "date": "2026-09-10",
+          "cum": -57.0
+        },
+        {
+          "date": "2026-09-20",
+          "cum": 4.69
         }
       ]
     },
@@ -438,45 +501,6 @@
       ]
     },
     {
-      "name": "10 AM 4HR PO3",
-      "trades": 6,
-      "wins": 1,
-      "losses": 5,
-      "be": 0,
-      "win_rate": 16.67,
-      "net_pnl": -57.0,
-      "avg_win": 199.87,
-      "avg_loss": 51.37,
-      "profit_factor": 0.78,
-      "expectancy": -9.5,
-      "series": [
-        {
-          "date": "2026-02-19",
-          "cum": -66.46
-        },
-        {
-          "date": "2026-07-09",
-          "cum": -115.25
-        },
-        {
-          "date": "2026-07-16",
-          "cum": 84.62
-        },
-        {
-          "date": "2026-07-23",
-          "cum": 45.78
-        },
-        {
-          "date": "2026-09-04",
-          "cum": 6.0
-        },
-        {
-          "date": "2026-09-10",
-          "cum": -57.0
-        }
-      ]
-    },
-    {
       "name": "9:50-10:10 Macro",
       "trades": 4,
       "wins": 0,
@@ -509,16 +533,16 @@
     },
     {
       "name": "\u274c No Setup",
-      "trades": 8,
+      "trades": 9,
       "wins": 0,
-      "losses": 8,
+      "losses": 9,
       "be": 0,
       "win_rate": 0.0,
-      "net_pnl": -470.57,
+      "net_pnl": -507.16,
       "avg_win": 0,
-      "avg_loss": 58.82,
+      "avg_loss": 56.35,
       "profit_factor": 0.0,
-      "expectancy": -58.82,
+      "expectancy": -56.35,
       "series": [
         {
           "date": "2026-01-09",
@@ -551,6 +575,10 @@
         {
           "date": "2026-09-14",
           "cum": -470.57
+        },
+        {
+          "date": "2026-09-18",
+          "cum": -507.16
         }
       ]
     }
