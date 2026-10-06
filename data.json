@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-06T02:40:21.643951+00:00",
-  "total_trades": 49,
-  "total_pnl": -154.65,
+  "generated_at": "2026-10-06T02:45:18.747461+00:00",
+  "total_trades": 50,
+  "total_pnl": -207.35,
   "multi_tagged_trades": 16,
-  "attributed_pnl_total": 564.08,
+  "attributed_pnl_total": 511.38,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -200,6 +200,10 @@
     {
       "date": "2026-09-25",
       "cum": -154.65
+    },
+    {
+      "date": "2026-10-05",
+      "cum": -207.35
     }
   ],
   "frameworks": [
@@ -260,16 +264,16 @@
     },
     {
       "name": "10:50-11:10-Lunch Hour Macro",
-      "trades": 13,
+      "trades": 14,
       "wins": 6,
-      "losses": 7,
+      "losses": 8,
       "be": 0,
-      "win_rate": 46.15,
-      "net_pnl": 365.75,
+      "win_rate": 42.86,
+      "net_pnl": 313.05,
       "avg_win": 121.19,
-      "avg_loss": 51.63,
-      "profit_factor": 2.01,
-      "expectancy": 28.13,
+      "avg_loss": 51.76,
+      "profit_factor": 1.76,
+      "expectancy": 22.36,
       "series": [
         {
           "date": "2026-01-06",
@@ -322,6 +326,10 @@
         {
           "date": "2026-09-25",
           "cum": 365.75
+        },
+        {
+          "date": "2026-10-05",
+          "cum": 313.05
         }
       ]
     },
