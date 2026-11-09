@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-09T17:50:19.764467+00:00",
+  "generated_at": "2026-11-09T17:55:17.725944+00:00",
   "total_trades": 53,
-  "total_pnl": 69.29,
+  "total_pnl": 70.21,
   "multi_tagged_trades": 16,
-  "attributed_pnl_total": 788.02,
+  "attributed_pnl_total": 788.94,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -215,7 +215,7 @@
     },
     {
       "date": "2026-11-09",
-      "cum": 69.29
+      "cum": 70.21
     }
   ],
   "frameworks": [
@@ -594,11 +594,11 @@
       "losses": 9,
       "be": 1,
       "win_rate": 0.0,
-      "net_pnl": -507.16,
+      "net_pnl": -506.24,
       "avg_win": 0,
       "avg_loss": 56.35,
       "profit_factor": 0.0,
-      "expectancy": -50.72,
+      "expectancy": -50.62,
       "series": [
         {
           "date": "2026-01-09",
@@ -638,7 +638,7 @@
         },
         {
           "date": "2026-11-09",
-          "cum": -507.16
+          "cum": -506.24
         }
       ]
     }
