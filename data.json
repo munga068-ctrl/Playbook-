@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-09T17:55:17.725944+00:00",
+  "generated_at": "2026-11-09T18:00:32.438789+00:00",
   "total_trades": 53,
   "total_pnl": 70.21,
   "multi_tagged_trades": 16,
@@ -221,16 +221,16 @@
   "frameworks": [
     {
       "name": "10:50-11:10-Lunch Hour Macro",
-      "trades": 16,
+      "trades": 17,
       "wins": 8,
       "losses": 8,
-      "be": 0,
-      "win_rate": 50.0,
-      "net_pnl": 589.69,
+      "be": 1,
+      "win_rate": 47.06,
+      "net_pnl": 590.61,
       "avg_win": 125.48,
       "avg_loss": 51.76,
       "profit_factor": 2.42,
-      "expectancy": 36.86,
+      "expectancy": 34.74,
       "series": [
         {
           "date": "2026-01-06",
@@ -295,6 +295,10 @@
         {
           "date": "2026-10-20",
           "cum": 589.69
+        },
+        {
+          "date": "2026-11-09",
+          "cum": 590.61
         }
       ]
     },
@@ -589,16 +593,16 @@
     },
     {
       "name": "\u274c No Setup",
-      "trades": 10,
+      "trades": 9,
       "wins": 0,
       "losses": 9,
-      "be": 1,
+      "be": 0,
       "win_rate": 0.0,
-      "net_pnl": -506.24,
+      "net_pnl": -507.16,
       "avg_win": 0,
       "avg_loss": 56.35,
       "profit_factor": 0.0,
-      "expectancy": -50.62,
+      "expectancy": -56.35,
       "series": [
         {
           "date": "2026-01-09",
@@ -635,10 +639,6 @@
         {
           "date": "2026-09-17",
           "cum": -507.16
-        },
-        {
-          "date": "2026-11-09",
-          "cum": -506.24
         }
       ]
     }
