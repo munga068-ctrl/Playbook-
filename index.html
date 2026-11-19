@@ -275,9 +275,11 @@ header{
 @keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
 
 /* ================= AM Framework Probability Heatmap ================= */
-:root{ --gold-rgb:201,154,74; }
-html[data-theme="light"]{ --gold-rgb:169,122,47; }
+:root{ --gold-rgb:201,154,74; --hm-rgb:76,175,125; }
+html[data-theme="light"]{ --gold-rgb:169,122,47; --hm-rgb:46,138,92; }
 .hm-panel{ padding:22px 24px 26px; }
+.hm-head-right{ display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+.hm-head-right .meta{ text-align:right; }
 .hm-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
 .hm-head h3{ font-weight:500; font-size:16px; margin:0 0 6px; }
 .hm-sub{ font-size:11.5px; color:var(--ink-dim); max-width:780px; line-height:1.55; }
@@ -294,7 +296,7 @@ html[data-theme="light"]{ --gold-rgb:169,122,47; }
 .hm-scales{ display:flex; gap:32px; flex-wrap:wrap; align-items:flex-start; margin-bottom:14px; }
 .hm-scale-title{ font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-dim); margin-bottom:8px; }
 .hm-grad{ width:210px; height:10px; border-radius:5px; border:1px solid var(--line);
-  background:linear-gradient(90deg, rgba(var(--gold-rgb),0.10), rgba(var(--gold-rgb),0.78)); }
+  background:linear-gradient(90deg, rgba(var(--hm-rgb),0.10), rgba(var(--hm-rgb),0.78)); }
 .hm-grad-labels{ display:flex; justify-content:space-between; font-size:10px; color:var(--ink-dim); font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; margin-top:4px; }
 .hm-fw-scale{ display:flex; flex-wrap:wrap; gap:6px 8px; }
 .hm-fw-chip{ display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:20px; padding:3px 10px 3px 7px;
@@ -406,7 +408,10 @@ table.hm td.hm-total{ background:transparent; border:1px solid var(--line); }
         <h3>High-probability days · Weekday × Month</h3>
         <div class="hm-sub">A day with an <b>AM FRAMEWORK</b> logged in the Indices Log is a high-probability day for the playbook. Each cell shows <b>high-probability days / logged trading days</b>; the colour deepens with the share of days that carried a framework, and the thin bar underneath shows <i>which</i> frameworks made up those days.</div>
       </div>
-      <div class="meta" id="hmMeta"></div>
+      <div class="hm-head-right">
+        <div class="seg-control" id="hmYearControl" style="display:none"></div>
+        <div class="meta" id="hmMeta"></div>
+      </div>
     </div>
     <div class="hm-kpis" id="hmKpis"></div>
     <div class="hm-scales">
@@ -1039,6 +1044,7 @@ const HM_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 
 let hmData = AM_HEATMAP_EMBEDDED;
 let hmSolo = null; // framework index isolated by clicking a chip / top-framework row
+let hmYear = null; // year shown in the grid; null = follow the latest year in the data until one is picked
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 // local-time parsing (never toISOString) so a date can't slip a day in UTC+ zones like Nairobi
@@ -1056,10 +1062,15 @@ function buildModel(data, solo){
   data.days.forEach(([d,l]) => dayMap.set(d,l));
   const set = new Set(data.logged);
   data.days.forEach(([d]) => set.add(d));
-  const dates = [...set].sort().filter(d => { const w = parseD(d).getDay(); return w >= 1 && w <= 5; });
-  if (!dates.length) return null;
+  const allDates = [...set].sort().filter(d => { const w = parseD(d).getDay(); return w >= 1 && w <= 5; });
+  if (!allDates.length) return null;
 
-  // contiguous list of months from the first logged day to the latest
+  // the grid shows one calendar year at a time so it never outgrows its width
+  const years = [...new Set(allDates.map(d => +d.slice(0,4)))];
+  const year = years.includes(hmYear) ? hmYear : years[years.length - 1];
+  const dates = allDates.filter(d => +d.slice(0,4) === year);
+
+  // contiguous list of months from the first logged day to the latest (within the year)
   const months = [];
   let [y,m] = dates[0].slice(0,7).split('-').map(Number);
   const [ly,lm] = dates[dates.length-1].slice(0,7).split('-').map(Number);
@@ -1069,15 +1080,17 @@ function buildModel(data, solo){
   }
   const mIdx = new Map(months.map((k,i)=>[k,i]));
 
-  // first month in which any real (non-neutral) framework was keyed; earlier months = "awaiting data"
-  let keyedFrom = null;
+  // first month (across ALL years) in which any real (non-neutral) framework was keyed;
+  // earlier months = "awaiting data", so a new year starts as keyed rather than hatched
+  let globalKeyedFrom = null;
   data.days.forEach(([d,l])=>{
     if (l.some(i => !fws[i].neutral)){
       const k = d.slice(0,7);
-      if (keyedFrom === null || k < keyedFrom) keyedFrom = k;
+      if (globalKeyedFrom === null || k < globalKeyedFrom) globalKeyedFrom = k;
     }
   });
-  const keyed = months.map(k => keyedFrom !== null && k >= keyedFrom);
+  const keyed = months.map(k => globalKeyedFrom !== null && k >= globalKeyedFrom);
+  const keyedFrom = months.find((k,i) => keyed[i]) || null; // first keyed month inside this year
 
   const mk = () => ({ logged:0, hit:0, fw:new Array(fws.length).fill(0) });
   const cells  = HM_DOW.map(()=>months.map(mk)); // honours the isolate/solo filter
@@ -1091,7 +1104,7 @@ function buildModel(data, solo){
     if (solo === null){ if (real.length) x.hit++; real.forEach(i => x.fw[i]++); }
     else if (list.includes(solo)){ x.hit++; x.fw[solo]++; }
   });
-  return { fws, months, keyed, keyedFrom, cells, gcells, generated:data.generated_at };
+  return { fws, months, keyed, keyedFrom, cells, gcells, year, years, generated:data.generated_at };
 }
 
 function buildStats(M){
@@ -1138,7 +1151,7 @@ function renderKpis(M, S){
   let html = '';
   html += `<div class="hm-kpi"><div class="k-label">High-probability days</div>
     <div class="k-value">${S.hpTotal}</div>
-    <div class="k-note">of ${S.keyedLogged} logged days since ${M.keyedFrom ? monthLabel(M.keyedFrom) : '\u2014'} \u00b7 ${S.keyedLogged ? pct(S.hpTotal/S.keyedLogged) : '\u2014'} carried a framework</div></div>`;
+    <div class="k-note">${S.keyedLogged ? `of ${S.keyedLogged} logged days since ${monthLabel(M.keyedFrom)} \u00b7 ${pct(S.hpTotal/S.keyedLogged)} carried a framework` : `No framework data keyed in for ${M.year} yet`}</div></div>`;
 
   if (hot.length){
     const h = hot[0];
@@ -1182,7 +1195,7 @@ function cellHtml(c, keyed, label, fws, solo){
   if (!keyed) return `<td class="hm-cell nodata" title="${esc(label)}: awaiting data \u2014 still being keyed in">\u2014</td>`;
   if (!c.logged) return `<td class="hm-cell zero"><div class="v">\u2013</div></td>`;
   const rate = c.hit / c.logged;
-  const bg = c.hit ? `background:rgba(var(--gold-rgb),${(0.10 + 0.68*rate).toFixed(2)});` : '';
+  const bg = c.hit ? `background:rgba(var(--hm-rgb),${(0.10 + 0.68*rate).toFixed(2)});` : '';
   const total = c.fw.reduce((a,b)=>a+b,0);
   let mix = '';
   let tip = `${label}: ${c.hit} of ${c.logged} logged days (${pct(rate)})`;
@@ -1275,18 +1288,28 @@ function renderMonths(M, S){
   wrap.innerHTML = html;
 }
 
+function renderYearToggle(M){
+  const wrap = document.getElementById('hmYearControl');
+  if (M.years.length < 2){ wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
+  wrap.style.display = '';
+  wrap.innerHTML = M.years.map(y =>
+    `<button class="seg-btn${y === M.year ? ' active' : ''}" type="button" data-year="${y}">${y}</button>`).join('');
+  wrap.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => { hmYear = +b.dataset.year; render(); }));
+}
+
 function render(){
   const meta = document.getElementById('hmMeta');
   const M = buildModel(hmData, hmSolo);
-  if (!M){ meta.textContent = 'No logged days yet'; return; }
+  if (!M){ meta.textContent = 'No logged days yet'; document.getElementById('hmYearControl').style.display = 'none'; return; }
   const S = buildStats(M);
+  renderYearToggle(M);
   renderKpis(M, S);
   renderScale(M, S);
   renderTable(M);
   renderTop(M, S);
   renderMonths(M, S);
   const g = hmData.generated_at ? new Date(hmData.generated_at) : null;
-  meta.textContent = 'Indices Log \u00b7 AM Framework' + (g && !isNaN(g) ? ' \u00b7 data as of ' + g.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '');
+  meta.textContent = 'Indices Log \u00b7 AM Framework \u00b7 ' + M.year + (g && !isNaN(g) ? ' \u00b7 data as of ' + g.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '');
 }
 
 function loadHeatmap(){

@@ -13,6 +13,10 @@ Environment variables required (set these as GitHub Actions secrets):
   NOTION_AM_FRAMEWORK_DATA_SOURCE_ID  - data source id of AM FRAMEWORK
   NOTION_PM_FRAMEWORK_DATA_SOURCE_ID  - data source id of PM FRAMEWORK
 
+Optional (enables the AM Framework heatmap -> am-frameworks.json):
+  NOTION_INDICES_LOG_DATA_SOURCE_ID   - data source id of the INDICES LOG (one row per
+                                        logged trading day, with an AM FRAMEWORK relation)
+
 Property names expected on the trades data source (edit PROP_* below if yours differ):
   Date            (date)
   REALIZED PNL    (number)
@@ -33,6 +37,7 @@ NOTION_TOKEN = os.environ["NOTION_TOKEN"]
 TRADES_DS = os.environ["NOTION_TRADES_DATA_SOURCE_ID"]
 AM_DS = os.environ["NOTION_AM_FRAMEWORK_DATA_SOURCE_ID"]
 PM_DS = os.environ["NOTION_PM_FRAMEWORK_DATA_SOURCE_ID"]
+LOG_DS = os.environ.get("NOTION_INDICES_LOG_DATA_SOURCE_ID", "").strip()
 
 NOTION_VERSION = "2025-09-03"
 API_BASE = "https://api.notion.com/v1"
@@ -43,6 +48,12 @@ PROP_PNL = "REALIZED PNL"
 PROP_OUTCOME = "OUTCOME "          # trailing space intentional
 PROP_AM_REL = "🟦 AM FRAMEWORK"
 PROP_PM_REL = "🟧 PM FRAMEWORK"
+
+# --- property names on the INDICES LOG data source (heatmap). If these don't match
+# exactly, the script falls back to the first date property / the first relation
+# property whose name contains "AM FRAMEWORK", so a renamed column won't break it. ---
+PROP_LOG_DATE = "Date"
+PROP_LOG_AM_REL = "🟦 AM FRAMEWORK"
 
 
 def notion_request(path, payload=None):
@@ -88,6 +99,93 @@ def get_title(page):
 def build_name_map(data_source_id):
     pages = query_all(data_source_id)
     return {p["id"]: get_title(p) for p in pages}
+
+
+def _find_prop(props, preferred, ptype, name_hint=None):
+    """Return the property named `preferred` if it has the right type; otherwise the
+    first property of `ptype` (whose name contains `name_hint`, when given)."""
+    p = props.get(preferred)
+    if p and p.get("type") == ptype:
+        return p
+    for name, prop in props.items():
+        if prop.get("type") != ptype:
+            continue
+        if name_hint and name_hint.upper() not in name.upper():
+            continue
+        return prop
+    return None
+
+
+def build_heatmap(am_pages, log_ds):
+    """AM Framework probability heatmap data.
+
+    Every row of the Indices Log is a logged trading day; a day that has an AM
+    FRAMEWORK related to it is a 'high-probability day'. Output matches the shape
+    index.html reads: frameworks (colour order = creation order, so colours stay
+    stable as new frameworks are added), logged dates, and per-day framework indexes.
+    """
+    ordered = sorted(am_pages, key=lambda p: p.get("created_time", ""))
+    frameworks, index = [], {}
+    for p in ordered:
+        name = get_title(p)
+        entry = {"name": name}
+        if name.strip().upper().startswith("NO FRAMEWORK"):
+            entry["neutral"] = True
+        index[p["id"]] = len(frameworks)
+        frameworks.append(entry)
+
+    logged, by_day = set(), defaultdict(set)
+    rel_seen = False
+    for page in query_all(log_ds):
+        props = page.get("properties", {})
+        date_prop = _find_prop(props, PROP_LOG_DATE, "date")
+        start = ((date_prop or {}).get("date") or {}).get("start")
+        if not start:
+            continue
+        day = start[:10]
+        logged.add(day)
+        rel_prop = _find_prop(props, PROP_LOG_AM_REL, "relation", name_hint="AM FRAMEWORK")
+        if rel_prop is not None:
+            rel_seen = True
+            for r in rel_prop.get("relation", []):
+                if r["id"] in index:
+                    by_day[day].add(index[r["id"]])
+
+    if not logged:
+        raise RuntimeError("Indices Log returned no dated rows (check the data source id / integration access)")
+    if not rel_seen:
+        raise RuntimeError("no AM FRAMEWORK relation property found on the Indices Log (check PROP_LOG_AM_REL)")
+
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "frameworks": frameworks,
+        "logged": sorted(logged),
+        "days": [[d, sorted(ix)] for d, ix in sorted(by_day.items()) if ix],
+    }
+
+
+def sync_heatmap(am_pages):
+    if not LOG_DS:
+        print("::notice::NOTION_INDICES_LOG_DATA_SOURCE_ID is not set - skipping heatmap sync")
+        return
+    out_path = os.path.join(os.path.dirname(__file__), "am-frameworks.json")
+    try:
+        heat = build_heatmap(am_pages, LOG_DS)
+    except Exception as e:  # never let the heatmap take down the main trades sync
+        print(f"::warning::Heatmap sync failed, keeping the previous am-frameworks.json: {e}", file=sys.stderr)
+        return
+    # only rewrite when the content changed, so quiet days don't create empty commits
+    try:
+        with open(out_path) as f:
+            prev = json.load(f)
+        if {k: v for k, v in prev.items() if k != "generated_at"} == {k: v for k, v in heat.items() if k != "generated_at"}:
+            print("Heatmap unchanged -> am-frameworks.json left as is")
+            return
+    except (OSError, ValueError):
+        pass
+    with open(out_path, "w") as f:
+        json.dump(heat, f, separators=(",", ":"))
+    print(f"Heatmap: {len(heat['logged'])} logged days, {len(heat['days'])} with an AM framework -> {out_path}")
 
 
 def _normalize_framework_name(name):
@@ -183,7 +281,8 @@ def compute_stats(trades):
 
 
 def main():
-    am_names = build_name_map(AM_DS)
+    am_pages = query_all(AM_DS)
+    am_names = {p["id"]: get_title(p) for p in am_pages}
     pm_names = build_name_map(PM_DS)
     trades = extract_trades(am_names, pm_names)
     frameworks = compute_stats(trades)
@@ -220,6 +319,8 @@ def main():
         json.dump(out, f, indent=2)
 
     print(f"Synced {len(trades)} trades across {len(frameworks)} frameworks -> {out_path}")
+
+    sync_heatmap(am_pages)
 
 
 if __name__ == "__main__":

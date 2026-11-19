@@ -32,6 +32,7 @@ jobs:
           NOTION_TRADES_DATA_SOURCE_ID: ${{ secrets.NOTION_TRADES_DATA_SOURCE_ID }}
           NOTION_AM_FRAMEWORK_DATA_SOURCE_ID: ${{ secrets.NOTION_AM_FRAMEWORK_DATA_SOURCE_ID }}
           NOTION_PM_FRAMEWORK_DATA_SOURCE_ID: ${{ secrets.NOTION_PM_FRAMEWORK_DATA_SOURCE_ID }}
+          NOTION_INDICES_LOG_DATA_SOURCE_ID: ${{ secrets.NOTION_INDICES_LOG_DATA_SOURCE_ID }}
         run: python sync_notion.py
 
       - name: Commit and push (retries if main moved since checkout)
@@ -39,6 +40,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json
+          git add am-frameworks.json 2>/dev/null || true
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
