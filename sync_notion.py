@@ -17,6 +17,10 @@ Optional (enables the AM Framework heatmap -> am-frameworks.json):
   NOTION_INDICES_LOG_DATA_SOURCE_ID   - data source id of the INDICES LOG (one row per
                                         logged trading day, with an AM FRAMEWORK relation)
 
+All ID secrets are cleaned on read (whitespace and stray quote characters are
+stripped) and must be a UUID, with or without dashes. Use the DATA SOURCE id,
+not the database id.
+
 Property names expected on the trades data source (edit PROP_* below if yours differ):
   Date            (date)
   REALIZED PNL    (number)
@@ -26,6 +30,7 @@ Property names expected on the trades data source (edit PROP_* below if yours di
 """
 
 import os
+import re
 import sys
 import json
 from collections import defaultdict
@@ -33,11 +38,36 @@ from datetime import datetime, timezone
 import urllib.request
 import urllib.error
 
+_UUID_RE = re.compile(
+    r"^[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}$"
+)
+
+
+def _env_id(name, required=True):
+    """Read a Notion ID from the environment, tolerating stray whitespace and quote
+    characters (e.g. a secret saved as "abc..." with the quotes included).
+
+    Required IDs raise a clear error if missing/invalid. Optional IDs return ""
+    (and print a warning if set but invalid) so the main trades sync still runs."""
+    val = os.environ.get(name, "").strip().strip("\"'").strip()
+    if not val:
+        if required:
+            raise KeyError(name)
+        return ""
+    if not _UUID_RE.match(val):
+        msg = f"{name} is not a valid Notion ID after cleaning (expected a UUID)"
+        if required:
+            raise ValueError(msg)
+        print(f"::warning::{msg} - skipping", file=sys.stderr)
+        return ""
+    return val
+
+
 NOTION_TOKEN = os.environ["NOTION_TOKEN"]
-TRADES_DS = os.environ["NOTION_TRADES_DATA_SOURCE_ID"]
-AM_DS = os.environ["NOTION_AM_FRAMEWORK_DATA_SOURCE_ID"]
-PM_DS = os.environ["NOTION_PM_FRAMEWORK_DATA_SOURCE_ID"]
-LOG_DS = os.environ.get("NOTION_INDICES_LOG_DATA_SOURCE_ID", "").strip()
+TRADES_DS = _env_id("NOTION_TRADES_DATA_SOURCE_ID")
+AM_DS = _env_id("NOTION_AM_FRAMEWORK_DATA_SOURCE_ID")
+PM_DS = _env_id("NOTION_PM_FRAMEWORK_DATA_SOURCE_ID")
+LOG_DS = _env_id("NOTION_INDICES_LOG_DATA_SOURCE_ID", required=False)
 
 NOTION_VERSION = "2025-09-03"
 API_BASE = "https://api.notion.com/v1"
@@ -166,7 +196,7 @@ def build_heatmap(am_pages, log_ds):
 
 def sync_heatmap(am_pages):
     if not LOG_DS:
-        print("::notice::NOTION_INDICES_LOG_DATA_SOURCE_ID is not set - skipping heatmap sync")
+        print("::notice::NOTION_INDICES_LOG_DATA_SOURCE_ID is not set (or invalid) - skipping heatmap sync")
         return
     out_path = os.path.join(os.path.dirname(__file__), "am-frameworks.json")
     try:
