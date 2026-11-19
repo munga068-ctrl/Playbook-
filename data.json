@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-19T02:55:21.146312+00:00",
-  "total_trades": 55,
-  "total_pnl": 255.61,
-  "multi_tagged_trades": 17,
-  "attributed_pnl_total": 1221.34,
+  "generated_at": "2026-11-19T03:00:25.628989+00:00",
+  "total_trades": 57,
+  "total_pnl": 276.25,
+  "multi_tagged_trades": 19,
+  "attributed_pnl_total": 1262.62,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -224,21 +224,29 @@
     {
       "date": "2026-11-13",
       "cum": 255.61
+    },
+    {
+      "date": "2026-11-18",
+      "cum": 273.43
+    },
+    {
+      "date": "2026-11-18",
+      "cum": 276.25
     }
   ],
   "frameworks": [
     {
       "name": "10:50-11:10-Lunch Hour Macro",
-      "trades": 19,
+      "trades": 21,
       "wins": 9,
       "losses": 9,
-      "be": 1,
-      "win_rate": 47.37,
-      "net_pnl": 776.01,
+      "be": 3,
+      "win_rate": 42.86,
+      "net_pnl": 796.65,
       "avg_win": 138.98,
       "avg_loss": 52.86,
       "profit_factor": 2.63,
-      "expectancy": 40.84,
+      "expectancy": 37.94,
       "series": [
         {
           "date": "2026-01-06",
@@ -315,6 +323,14 @@
         {
           "date": "2026-11-13",
           "cum": 776.01
+        },
+        {
+          "date": "2026-11-18",
+          "cum": 793.83
+        },
+        {
+          "date": "2026-11-18",
+          "cum": 796.65
         }
       ]
     },
@@ -499,6 +515,29 @@
         {
           "date": "2026-02-26",
           "cum": 207.54
+        }
+      ]
+    },
+    {
+      "name": "10AM H4 Full Reversal [MMSM]",
+      "trades": 2,
+      "wins": 0,
+      "losses": 0,
+      "be": 2,
+      "win_rate": 0.0,
+      "net_pnl": 20.64,
+      "avg_win": 0,
+      "avg_loss": 0,
+      "profit_factor": 0,
+      "expectancy": 10.32,
+      "series": [
+        {
+          "date": "2026-11-18",
+          "cum": 17.82
+        },
+        {
+          "date": "2026-11-18",
+          "cum": 20.64
         }
       ]
     },
