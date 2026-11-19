@@ -273,6 +273,88 @@ header{
 .theme-toggle:disabled{ opacity:0.55; cursor:default; }
 .theme-toggle .icon.spin{ display:inline-block; animation:spin 0.8s linear infinite; }
 @keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+/* ================= AM Framework Probability Heatmap ================= */
+:root{ --gold-rgb:201,154,74; }
+html[data-theme="light"]{ --gold-rgb:169,122,47; }
+.hm-panel{ padding:22px 24px 26px; }
+.hm-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+.hm-head h3{ font-weight:500; font-size:16px; margin:0 0 6px; }
+.hm-sub{ font-size:11.5px; color:var(--ink-dim); max-width:780px; line-height:1.55; }
+.hm-kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; margin:18px 0 22px; }
+.hm-kpi{ background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+.hm-kpi .k-label{ font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-dim); margin-bottom:6px; }
+.hm-kpi .k-value{ font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:19px; font-weight:700; line-height:1.25; }
+.hm-kpi .k-note{ font-size:11px; color:var(--ink-dim); margin-top:5px; line-height:1.45; }
+.hm-kpi.hot{ border-color:var(--win); background:var(--win-soft); }
+.hm-kpi.hot .k-value{ color:var(--win); }
+.hm-kpi.cold{ border-color:var(--stale-c); }
+.hm-kpi.cold .k-value{ color:var(--stale-c); }
+.hm-kpi.pending{ border-style:dashed; }
+.hm-scales{ display:flex; gap:32px; flex-wrap:wrap; align-items:flex-start; margin-bottom:14px; }
+.hm-scale-title{ font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-dim); margin-bottom:8px; }
+.hm-grad{ width:210px; height:10px; border-radius:5px; border:1px solid var(--line);
+  background:linear-gradient(90deg, rgba(var(--gold-rgb),0.10), rgba(var(--gold-rgb),0.78)); }
+.hm-grad-labels{ display:flex; justify-content:space-between; font-size:10px; color:var(--ink-dim); font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; margin-top:4px; }
+.hm-fw-scale{ display:flex; flex-wrap:wrap; gap:6px 8px; }
+.hm-fw-chip{ display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:20px; padding:3px 10px 3px 7px;
+  font-size:10.5px; font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; color:var(--ink-dim); background:var(--panel);
+  cursor:pointer; transition:border-color .15s ease, opacity .15s ease; }
+.hm-fw-chip:hover{ border-color:var(--gold); color:var(--ink); }
+.hm-fw-chip .sw{ width:10px; height:10px; border-radius:3px; flex:0 0 10px; }
+.hm-fw-chip .rk{ color:var(--ink); font-weight:700; }
+.hm-fw-chip.unused{ opacity:.45; cursor:default; }
+.hm-fw-chip.unused:hover{ border-color:var(--line); color:var(--ink-dim); }
+.hm-fw-chip.active{ border-color:var(--gold); color:var(--ink); background:var(--gold-soft); }
+.hm-fw-chip.dim{ opacity:.4; }
+.hm-solo-note{ font-size:11px; color:var(--gold); font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; margin:0 0 10px; min-height:14px; }
+.hm-scroll{ overflow-x:auto; padding-bottom:6px; }
+table.hm{ border-collapse:separate; border-spacing:4px; width:100%; min-width:1060px; table-layout:fixed; }
+table.hm th{ font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:10.5px; font-weight:600; color:var(--ink-dim); text-align:center; padding:2px 0 4px; }
+table.hm th.hm-row{ text-align:right; padding-right:8px; width:56px; color:var(--ink); }
+table.hm th .yr{ display:block; font-size:9px; font-weight:400; opacity:.75; }
+table.hm th.nodata{ opacity:.5; }
+table.hm td{ height:60px; border-radius:8px; padding:6px 6px 5px; text-align:center; vertical-align:middle; background:var(--panel-2); border:1px solid transparent; }
+table.hm td.hm-cell:hover{ border-color:var(--gold); }
+table.hm td .v{ font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:13px; font-weight:700; color:var(--ink); line-height:1.1; }
+table.hm td .s{ font-size:9.5px; color:var(--ink-dim); margin-top:2px; }
+table.hm td .mix{ display:flex; gap:1px; height:5px; border-radius:3px; overflow:hidden; margin-top:5px; background:rgba(127,127,127,.18); }
+table.hm td .mix i{ display:block; height:100%; }
+table.hm td.zero .v{ color:var(--ink-dim); font-weight:500; }
+table.hm td.nodata{ background:repeating-linear-gradient(135deg, transparent 0 6px, rgba(127,127,127,.12) 6px 7px);
+  border:1px dashed var(--line); color:var(--ink-dim); font-size:12px; opacity:.85; }
+table.hm td.hm-total{ background:transparent; border:1px solid var(--line); }
+.hm-foot{ font-size:10.5px; color:var(--ink-dim); margin-top:8px; line-height:1.5; }
+.hm-lower{ display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:28px; margin-top:28px; }
+@media (max-width:1100px){ .hm-lower{ grid-template-columns:1fr; } }
+.hm-box h4{ font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--ink-dim); margin:0 0 12px; font-weight:600; }
+.top-fw{ display:grid; grid-template-columns:30px minmax(0,1fr) auto; gap:5px 12px; align-items:center; padding:10px 14px 10px 8px;
+  border:1px solid var(--line); border-radius:10px; background:var(--panel-2); margin-bottom:8px; cursor:pointer; transition:border-color .15s ease; }
+.top-fw:hover{ border-color:var(--gold); }
+.top-fw.top3{ border-color:rgba(var(--gold-rgb),0.75); background:rgba(var(--gold-rgb),0.08); }
+.top-fw.active{ box-shadow:0 0 0 1px var(--gold); }
+.top-fw .rank{ grid-row:1 / span 3; font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:14px; font-weight:700; color:var(--gold); text-align:center; }
+.top-fw .nm{ font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; min-width:0; }
+.top-fw .nm .dot{ width:10px; height:10px; border-radius:3px; flex:0 0 10px; }
+.top-fw .nm .t{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.top-fw .nm .tag{ font-size:8.5px; letter-spacing:.8px; text-transform:uppercase; color:var(--gold); border:1px solid rgba(var(--gold-rgb),.6); border-radius:4px; padding:1px 5px; flex:0 0 auto; }
+.top-fw .ct{ font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:13px; font-weight:700; text-align:right; white-space:nowrap; }
+.top-fw .bar{ grid-column:2 / 4; height:6px; border-radius:3px; background:rgba(127,127,127,.18); overflow:hidden; }
+.top-fw .bar i{ display:block; height:100%; border-radius:3px; }
+.top-fw .meta2{ grid-column:2 / 4; font-size:10.5px; color:var(--ink-dim); font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; }
+.mo-row{ display:grid; grid-template-columns:78px minmax(0,1fr) 118px; gap:10px; align-items:center; padding:6px 0; font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:11.5px; }
+.mo-row .bar{ height:10px; border-radius:5px; background:rgba(127,127,127,.18); overflow:hidden; }
+.mo-row .bar i{ display:block; height:100%; background:rgba(var(--gold-rgb),.78); }
+.mo-row.best .bar i{ background:var(--win); }
+.mo-row.quiet .bar i{ background:var(--stale-c); }
+.mo-row .lb{ color:var(--ink); }
+.mo-row.best .lb{ color:var(--win); }
+.mo-row.quiet .lb{ color:var(--stale-c); }
+.mo-row .ct{ text-align:right; color:var(--ink-dim); display:flex; align-items:center; justify-content:flex-end; gap:6px; white-space:nowrap; }
+.mo-row .ct .dot{ width:8px; height:8px; border-radius:2px; flex:0 0 8px; }
+.mo-pending{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.mo-pending span{ border:1px dashed var(--line); border-radius:6px; padding:3px 8px; font-size:10.5px; color:var(--ink-dim); font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; opacity:.8; }
+.mo-pending-title{ font-size:10.5px; color:var(--ink-dim); margin-top:14px; }
 </style>
 </head>
 <body>
@@ -317,7 +399,37 @@ header{
     </div>
   </div>
 
-  <div class="footer-note">Synced from Notion · data.json regenerated automatically · hover a playbook card for full stats</div>
+  <div class="section-title">AM Framework Probability Heatmap</div>
+  <div class="chart-panel hm-panel" id="hmPanel">
+    <div class="hm-head">
+      <div>
+        <h3>High-probability days · Weekday × Month</h3>
+        <div class="hm-sub">A day with an <b>AM FRAMEWORK</b> logged in the Indices Log is a high-probability day for the playbook. Each cell shows <b>high-probability days / logged trading days</b>; the colour deepens with the share of days that carried a framework, and the thin bar underneath shows <i>which</i> frameworks made up those days.</div>
+      </div>
+      <div class="meta" id="hmMeta"></div>
+    </div>
+    <div class="hm-kpis" id="hmKpis"></div>
+    <div class="hm-scales">
+      <div>
+        <div class="hm-scale-title">Probability scale</div>
+        <div class="hm-grad"></div>
+        <div class="hm-grad-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+      </div>
+      <div style="flex:1; min-width:300px;">
+        <div class="hm-scale-title">Framework scale · ranked by days visible · click one to isolate it</div>
+        <div class="hm-fw-scale" id="hmFwScale"></div>
+      </div>
+    </div>
+    <div class="hm-solo-note" id="hmSoloNote"></div>
+    <div class="hm-scroll"><table class="hm" id="hmTable"></table></div>
+    <div class="hm-foot">Hatched columns are months still being keyed into the Indices Log. They fill in automatically as AM FRAMEWORK is logged, so a hatched month means <i>no data yet</i>, not a quiet month.</div>
+    <div class="hm-lower">
+      <div class="hm-box"><h4>Top frameworks visible on high-probability days</h4><div id="hmTop"></div></div>
+      <div class="hm-box"><h4>Month by month</h4><div id="hmMonths"></div></div>
+    </div>
+  </div>
+
+  <div class="footer-note">Synced from Notion · data.json regenerated automatically · hover a playbook card for full stats · heatmap from Indices Log AM Framework</div>
 </div>
 
 <script>
@@ -872,6 +984,7 @@ function runSync(){
   syncBtn.disabled = true;
   syncIcon.classList.add('spin');
   syncLabel.textContent = 'Syncing…';
+  if (typeof loadHeatmap === 'function') loadHeatmap();
   return loadData()
     .then(() => { syncLabel.textContent = 'Synced'; })
     .catch(() => { syncLabel.textContent = 'Retry'; })
@@ -907,6 +1020,287 @@ setInterval(() => {
     runSync();
   }
 }, AUTO_REFRESH_MS);
+</script>
+<script>
+(function(){
+// ---------------------------------------------------------------------------
+// Data: INDICES LOG (every logged NQ trading day) joined to its AM FRAMEWORK relation.
+// The page first tries ./am-frameworks.json (so it can be refreshed without touching
+// this file) and falls back to the snapshot below.
+// ---------------------------------------------------------------------------
+// AM_HEATMAP_START
+const AM_HEATMAP_EMBEDDED = {"generated_at":"2026-11-19T12:30:00Z","frameworks":[{"name":"10:50-11:10-Lunch Hour Macro"},{"name":"10AM H4 Retracement & Continuation"},{"name":"10AM H4 EQ Retracement"},{"name":"Shallow Retracement continuation"},{"name":"10AM H4 Full Reversal [MMSM]"},{"name":"10AM H4 Full Reversal [MMBM]"},{"name":"Very Shallow Retracement Continuation"},{"name":"10AM H4 EQ Continuation"},{"name":"10AM H4 EQ Reversal"},{"name":"10AM H4 Reversal"},{"name":"10 AM 4HR PO3"},{"name":"9:50-10:10 Macro"},{"name":"9:30 Open P03"},{"name":"NO FRAMEWORK AM","neutral":true}],"logged":["2025-10-06","2025-10-07","2025-10-14","2025-10-15","2025-10-16","2025-10-17","2025-10-20","2025-10-21","2025-10-22","2025-10-23","2025-10-24","2025-10-27","2025-10-28","2025-10-29","2025-10-30","2025-10-31","2025-11-03","2025-11-04","2025-11-05","2025-11-06","2025-11-07","2025-11-10","2025-11-11","2025-11-12","2025-11-13","2025-11-14","2025-11-17","2025-11-18","2025-11-19","2025-11-20","2025-11-21","2025-11-24","2025-11-25","2025-11-26","2025-12-01","2025-12-02","2025-12-03","2025-12-04","2025-12-05","2025-12-08","2025-12-09","2025-12-10","2025-12-11","2025-12-12","2025-12-15","2025-12-16","2025-12-17","2025-12-18","2025-12-19","2025-12-22","2025-12-23","2025-12-29","2025-12-30","2025-12-31","2026-01-02","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-02-02","2026-02-03","2026-02-04","2026-02-05","2026-02-06","2026-02-09","2026-02-10","2026-02-11","2026-02-12","2026-02-13","2026-02-17","2026-02-18","2026-02-19","2026-02-20","2026-02-23","2026-02-24","2026-02-25","2026-02-26","2026-02-27","2026-03-02","2026-03-03","2026-03-04","2026-03-05","2026-03-06","2026-03-09","2026-03-10","2026-03-11","2026-03-12","2026-03-13","2026-03-16","2026-03-17","2026-03-18","2026-03-19","2026-03-20","2026-03-23","2026-03-24","2026-03-25","2026-03-26","2026-03-27","2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-13","2026-04-14","2026-04-15","2026-04-16","2026-04-17","2026-04-20","2026-04-21","2026-04-22","2026-04-23","2026-04-24","2026-04-27","2026-04-28","2026-04-29","2026-04-30","2026-05-01","2026-05-04","2026-05-05","2026-05-06","2026-05-07","2026-05-08","2026-05-11","2026-05-12","2026-05-13","2026-05-14","2026-05-15","2026-05-18","2026-05-19","2026-05-20","2026-05-21","2026-05-22","2026-05-26","2026-05-27","2026-05-28","2026-05-29","2026-06-01","2026-06-02","2026-06-03","2026-06-04","2026-06-05","2026-06-08","2026-06-09","2026-06-10","2026-06-11","2026-06-12","2026-06-15","2026-06-16","2026-06-17","2026-06-18","2026-06-22","2026-06-23","2026-06-24","2026-06-25","2026-06-26","2026-06-29","2026-06-30","2026-07-01","2026-07-02","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31","2026-08-03","2026-08-04","2026-08-05","2026-08-06","2026-08-07","2026-08-10","2026-08-11","2026-08-12","2026-08-13","2026-08-14","2026-08-17","2026-08-18","2026-08-19","2026-08-20","2026-08-21","2026-08-24","2026-08-25","2026-08-26","2026-08-27","2026-08-28","2026-08-31","2026-09-01","2026-09-02","2026-09-03","2026-09-04","2026-09-08","2026-09-09","2026-09-10","2026-09-11","2026-09-14","2026-09-15","2026-09-16","2026-09-17","2026-09-18","2026-09-21","2026-09-22","2026-09-23","2026-09-24","2026-09-25","2026-09-28","2026-09-29","2026-09-30","2026-10-01","2026-10-02","2026-10-05","2026-10-06","2026-10-07","2026-10-08","2026-10-09","2026-10-13","2026-10-14","2026-10-15","2026-10-16","2026-10-19","2026-10-20","2026-10-21","2026-10-22","2026-10-23","2026-10-26","2026-10-27","2026-10-28","2026-10-29","2026-10-30","2026-11-02","2026-11-03","2026-11-04","2026-11-05","2026-11-06","2026-11-09","2026-11-10","2026-11-12","2026-11-13","2026-11-16","2026-11-17","2026-11-18"],"days":[["2026-06-05",[0,1]],["2026-06-09",[6]],["2026-06-10",[0,4]],["2026-06-15",[0,1]],["2026-06-16",[3]],["2026-06-22",[6]],["2026-06-23",[0,4]],["2026-06-29",[0,5]],["2026-06-30",[3]],["2026-07-02",[3]],["2026-07-08",[0,4]],["2026-07-09",[0,5]],["2026-07-14",[0,5]],["2026-07-15",[3]],["2026-07-17",[0,2]],["2026-07-20",[0,2]],["2026-07-21",[0,5]],["2026-07-22",[0,2]],["2026-07-23",[0,2]],["2026-07-24",[0,5]],["2026-07-27",[3]],["2026-07-28",[0,5]],["2026-07-30",[0,2]],["2026-08-03",[6]],["2026-08-04",[6]],["2026-08-06",[0,2]],["2026-08-07",[0,5]],["2026-08-10",[0,4]],["2026-08-14",[6]],["2026-08-18",[0,1]],["2026-08-21",[0,5]],["2026-09-01",[3]],["2026-09-02",[0,2]],["2026-09-03",[0,1]],["2026-09-04",[4]],["2026-09-08",[0,5]],["2026-09-09",[0,4]],["2026-09-14",[0,1]],["2026-09-15",[3]],["2026-09-17",[0,1]],["2026-09-18",[0,1]],["2026-09-21",[6]],["2026-09-22",[0,2]],["2026-09-23",[0,2]],["2026-09-28",[3]],["2026-10-01",[0,1]],["2026-10-02",[0,4]],["2026-10-05",[6]],["2026-10-06",[0,1]],["2026-10-07",[0,1]],["2026-10-14",[0,3]],["2026-10-15",[0,1]],["2026-10-16",[0,1]],["2026-10-19",[0,1]],["2026-10-20",[0,2]],["2026-10-22",[6]],["2026-10-23",[0,2]],["2026-10-26",[0,2]],["2026-10-30",[0,1]],["2026-11-02",[0,4]],["2026-11-04",[0,2]],["2026-11-05",[3]],["2026-11-09",[0,3]],["2026-11-10",[4]],["2026-11-12",[0,1]],["2026-11-16",[0,2]],["2026-11-17",[3]],["2026-11-18",[4]]]};
+// AM_HEATMAP_END
+
+const HM_PALETTE = ['#5aa9e6','#4caf7d','#b07cd8','#e0715f','#3fc1c9','#e08fb3','#8fbf5a','#6f7de0','#d98c4f','#7fd1a3','#c46fb3','#5fa0a8','#a0a6b4'];
+const HM_NEUTRAL = '#8a8f98';
+const HM_DOW = ['Mon','Tue','Wed','Thu','Fri'];
+const HM_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+let hmData = AM_HEATMAP_EMBEDDED;
+let hmSolo = null; // framework index isolated by clicking a chip / top-framework row
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// local-time parsing (never toISOString) so a date can't slip a day in UTC+ zones like Nairobi
+function parseD(s){ const p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+function monthKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+function monthLabel(key){ const p = key.split('-'); return HM_MON[+p[1]-1] + ' \u2019' + p[0].slice(2); }
+function pct(x){ return Math.round(x * 100) + '%'; }
+
+function buildModel(data, solo){
+  const fws = data.frameworks.map((f,i)=>({ name:f.name, neutral:!!f.neutral, idx:i }));
+  let pi = 0;
+  fws.forEach(f => { f.color = f.neutral ? HM_NEUTRAL : HM_PALETTE[pi++ % HM_PALETTE.length]; });
+
+  const dayMap = new Map();
+  data.days.forEach(([d,l]) => dayMap.set(d,l));
+  const set = new Set(data.logged);
+  data.days.forEach(([d]) => set.add(d));
+  const dates = [...set].sort().filter(d => { const w = parseD(d).getDay(); return w >= 1 && w <= 5; });
+  if (!dates.length) return null;
+
+  // contiguous list of months from the first logged day to the latest
+  const months = [];
+  let [y,m] = dates[0].slice(0,7).split('-').map(Number);
+  const [ly,lm] = dates[dates.length-1].slice(0,7).split('-').map(Number);
+  while (y < ly || (y === ly && m <= lm)){
+    months.push(y + '-' + String(m).padStart(2,'0'));
+    m++; if (m > 12){ m = 1; y++; }
+  }
+  const mIdx = new Map(months.map((k,i)=>[k,i]));
+
+  // first month in which any real (non-neutral) framework was keyed; earlier months = "awaiting data"
+  let keyedFrom = null;
+  data.days.forEach(([d,l])=>{
+    if (l.some(i => !fws[i].neutral)){
+      const k = d.slice(0,7);
+      if (keyedFrom === null || k < keyedFrom) keyedFrom = k;
+    }
+  });
+  const keyed = months.map(k => keyedFrom !== null && k >= keyedFrom);
+
+  const mk = () => ({ logged:0, hit:0, fw:new Array(fws.length).fill(0) });
+  const cells  = HM_DOW.map(()=>months.map(mk)); // honours the isolate/solo filter
+  const gcells = HM_DOW.map(()=>months.map(mk)); // always global; drives stats and rankings
+  dates.forEach(d=>{
+    const r = parseD(d).getDay() - 1, c = mIdx.get(d.slice(0,7));
+    const list = dayMap.get(d) || [];
+    const real = list.filter(i => !fws[i].neutral);
+    const g = gcells[r][c]; g.logged++; if (real.length) g.hit++; real.forEach(i => g.fw[i]++);
+    const x = cells[r][c];  x.logged++;
+    if (solo === null){ if (real.length) x.hit++; real.forEach(i => x.fw[i]++); }
+    else if (list.includes(solo)){ x.hit++; x.fw[solo]++; }
+  });
+  return { fws, months, keyed, keyedFrom, cells, gcells, generated:data.generated_at };
+}
+
+function buildStats(M){
+  const R = HM_DOW.length, C = M.months.length, F = M.fws.length;
+  const mo = M.months.map((k,c)=>{
+    let logged = 0, hit = 0; const fw = new Array(F).fill(0);
+    for (let r = 0; r < R; r++){ const x = M.gcells[r][c]; logged += x.logged; hit += x.hit; x.fw.forEach((n,i)=>{ fw[i] += n; }); }
+    let top = -1; fw.forEach((n,i)=>{ if (n > 0 && (top < 0 || n > fw[top])) top = i; });
+    return { key:k, logged, hit, rate: logged ? hit/logged : 0, fw, top, keyed:M.keyed[c] };
+  });
+  const fwTotal = new Array(F).fill(0);
+  const fwDow = M.fws.map(()=>new Array(R).fill(0));
+  const fwMon = M.fws.map(()=>new Array(C).fill(0));
+  let hpTotal = 0, keyedLogged = 0;
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++){
+    if (!M.keyed[c]) continue;
+    const x = M.gcells[r][c]; hpTotal += x.hit; keyedLogged += x.logged;
+    x.fw.forEach((n,i)=>{ fwTotal[i] += n; fwDow[i][r] += n; fwMon[i][c] += n; });
+  }
+  const ranked = M.fws.filter(f => !f.neutral && fwTotal[f.idx] > 0)
+    .sort((a,b)=> fwTotal[b.idx] - fwTotal[a.idx] || a.name.localeCompare(b.name));
+  const rankOf = new Map(ranked.map((f,i)=>[f.idx, i+1]));
+  return { mo, fwTotal, fwDow, fwMon, hpTotal, keyedLogged, ranked, rankOf };
+}
+
+function toggleSolo(idx){ hmSolo = (hmSolo === idx) ? null : idx; render(); }
+
+function renderKpis(M, S){
+  const nowKey = monthKey(new Date());
+  const keyedMo = S.mo.filter(m => m.keyed);
+  const inProgress = m => m.key === nowKey;
+  const best = (pool, dir) => {
+    if (!pool.length) return [];
+    const target = pool.reduce((a,m)=> dir > 0 ? Math.max(a,m.rate) : Math.min(a,m.rate), dir > 0 ? -1 : 2);
+    return pool.filter(m => m.rate === target);
+  };
+  const labels = arr => arr.map(m => monthLabel(m.key)).join(' & ');
+  const full = keyedMo.filter(m => !inProgress(m));
+  const hot = best(keyedMo, +1);
+  const hotFull = best(full, +1);
+  const cold = best(full.length >= 2 ? full : keyedMo, -1);
+  const awaiting = S.mo.filter(m => !m.keyed);
+
+  let html = '';
+  html += `<div class="hm-kpi"><div class="k-label">High-probability days</div>
+    <div class="k-value">${S.hpTotal}</div>
+    <div class="k-note">of ${S.keyedLogged} logged days since ${M.keyedFrom ? monthLabel(M.keyedFrom) : '\u2014'} \u00b7 ${S.keyedLogged ? pct(S.hpTotal/S.keyedLogged) : '\u2014'} carried a framework</div></div>`;
+
+  if (hot.length){
+    const h = hot[0];
+    let note = `${h.hit} of ${h.logged} logged days`;
+    if (hot.some(inProgress)) note += ' \u00b7 month still in progress';
+    if (hot.some(inProgress) && hotFull.length) note += `<br>Best full month: ${labels(hotFull)} (${pct(hotFull[0].rate)})`;
+    html += `<div class="hm-kpi hot"><div class="k-label">Most probable month</div>
+      <div class="k-value">${labels(hot)} \u00b7 ${pct(h.rate)}</div><div class="k-note">${note}</div></div>`;
+  }
+  if (cold.length){
+    const c = cold[0];
+    html += `<div class="hm-kpi cold"><div class="k-label">Quietest month</div>
+      <div class="k-value">${labels(cold)} \u00b7 ${pct(c.rate)}</div>
+      <div class="k-note">${c.hit} of ${c.logged} logged days \u00b7 fewest framework setups so far</div></div>`;
+  }
+  html += `<div class="hm-kpi pending"><div class="k-label">Awaiting data</div>
+    <div class="k-value">${awaiting.length ? awaiting.length + ' month' + (awaiting.length === 1 ? '' : 's') : 'None'}</div>
+    <div class="k-note">${awaiting.length ? monthLabel(awaiting[0].key) + ' \u2013 ' + monthLabel(awaiting[awaiting.length-1].key) + ' \u00b7 still being keyed in; fills automatically' : 'Every logged month has framework data'}</div></div>`;
+  document.getElementById('hmKpis').innerHTML = html;
+}
+
+function renderScale(M, S){
+  const wrap = document.getElementById('hmFwScale');
+  const order = [...S.ranked, ...M.fws.filter(f => !S.rankOf.has(f.idx))];
+  wrap.innerHTML = order.map(f=>{
+    const n = S.fwTotal[f.idx], rk = S.rankOf.get(f.idx);
+    const cls = ['hm-fw-chip'];
+    if (!n) cls.push('unused');
+    if (hmSolo === f.idx) cls.push('active'); else if (hmSolo !== null) cls.push('dim');
+    return `<button type="button" class="${cls.join(' ')}" data-i="${f.idx}" title="${esc(f.name)}${n ? ' \u2014 ' + n + ' day' + (n===1?'':'s') : ' \u2014 not logged yet'}">
+      <span class="sw" style="background:${f.color}"></span>
+      ${rk ? `<span class="rk">#${rk}</span>` : '<span>\u2013</span>'}${esc(f.name)}${n ? ' \u00d7' + n : ''}</button>`;
+  }).join('');
+  wrap.querySelectorAll('.hm-fw-chip:not(.unused)').forEach(b => b.addEventListener('click', ()=> toggleSolo(+b.dataset.i)));
+  const note = document.getElementById('hmSoloNote');
+  note.textContent = hmSolo === null ? '' :
+    `Showing only \u201c${M.fws[hmSolo].name}\u201d \u2014 cells show the days it appeared / logged days. Click it again to reset.`;
+}
+
+function cellHtml(c, keyed, label, fws, solo){
+  if (!keyed) return `<td class="hm-cell nodata" title="${esc(label)}: awaiting data \u2014 still being keyed in">\u2014</td>`;
+  if (!c.logged) return `<td class="hm-cell zero"><div class="v">\u2013</div></td>`;
+  const rate = c.hit / c.logged;
+  const bg = c.hit ? `background:rgba(var(--gold-rgb),${(0.10 + 0.68*rate).toFixed(2)});` : '';
+  const total = c.fw.reduce((a,b)=>a+b,0);
+  let mix = '';
+  let tip = `${label}: ${c.hit} of ${c.logged} logged days (${pct(rate)})`;
+  if (solo !== null){
+    mix = `<div class="mix"><i style="width:${(rate*100).toFixed(0)}%;background:${fws[solo].color}"></i></div>`;
+  } else if (total){
+    mix = '<div class="mix">' + c.fw.map((n,i)=> n ? `<i style="width:${(n/total*100).toFixed(1)}%;background:${fws[i].color}"></i>` : '').join('') + '</div>';
+    tip += '\n' + c.fw.map((n,i)=> n ? `\u2022 ${fws[i].name} \u00d7${n}` : '').filter(Boolean).join('\n');
+  }
+  return `<td class="hm-cell${c.hit ? '' : ' zero'}" style="${bg}" title="${esc(tip).replace(/\n/g,'&#10;')}">
+    <div class="v">${c.hit}/${c.logged}</div><div class="s">${pct(rate)}</div>${mix}</td>`;
+}
+
+function renderTable(M){
+  const R = HM_DOW.length, C = M.months.length;
+  let h = '<thead><tr><th class="hm-row"></th>';
+  M.months.forEach((k,c)=>{
+    const p = k.split('-');
+    h += `<th class="${M.keyed[c] ? '' : 'nodata'}">${HM_MON[+p[1]-1]}<span class="yr">\u2019${p[0].slice(2)}</span></th>`;
+  });
+  h += '<th>All</th></tr></thead><tbody>';
+
+  const colAgg = M.months.map(()=>({logged:0, hit:0, fw:new Array(M.fws.length).fill(0)}));
+  const grand = {logged:0, hit:0, fw:new Array(M.fws.length).fill(0)};
+  for (let r = 0; r < R; r++){
+    const rowAgg = {logged:0, hit:0, fw:new Array(M.fws.length).fill(0)};
+    h += `<tr><th class="hm-row">${HM_DOW[r]}</th>`;
+    for (let c = 0; c < C; c++){
+      const x = M.cells[r][c];
+      h += cellHtml(x, M.keyed[c], HM_DOW[r] + ' \u00b7 ' + monthLabel(M.months[c]), M.fws, hmSolo);
+      if (M.keyed[c]){
+        [rowAgg, colAgg[c], grand].forEach(a => { a.logged += x.logged; a.hit += x.hit; x.fw.forEach((n,i)=>{ a.fw[i] += n; }); });
+      }
+    }
+    h += cellHtml(rowAgg, true, HM_DOW[r] + ' \u00b7 all keyed months', M.fws, hmSolo).replace('class="hm-cell', 'class="hm-total hm-cell') + '</tr>';
+  }
+  h += '<tr><th class="hm-row">All</th>';
+  M.months.forEach((k,c)=>{
+    h += cellHtml(colAgg[c], M.keyed[c], 'All days \u00b7 ' + monthLabel(k), M.fws, hmSolo).replace('class="hm-cell', 'class="hm-total hm-cell');
+  });
+  h += cellHtml(grand, true, 'All keyed days', M.fws, hmSolo).replace('class="hm-cell', 'class="hm-total hm-cell') + '</tr></tbody>';
+  document.getElementById('hmTable').innerHTML = h;
+}
+
+function renderTop(M, S){
+  const wrap = document.getElementById('hmTop');
+  if (!S.ranked.length){ wrap.innerHTML = '<div class="hm-foot">No frameworks logged yet.</div>'; return; }
+  const max = S.fwTotal[S.ranked[0].idx];
+  wrap.innerHTML = S.ranked.map((f,i)=>{
+    const n = S.fwTotal[f.idx];
+    const bestDow = S.fwDow[f.idx].reduce((b,v,r)=> v > S.fwDow[f.idx][b] ? r : b, 0);
+    const bestMon = S.fwMon[f.idx].reduce((b,v,c)=> v > S.fwMon[f.idx][b] ? c : b, 0);
+    const cls = ['top-fw']; if (i < 3) cls.push('top3'); if (hmSolo === f.idx) cls.push('active');
+    return `<div class="${cls.join(' ')}" data-i="${f.idx}" title="Click to isolate in the heatmap">
+      <div class="rank">${i+1}</div>
+      <div class="nm"><span class="dot" style="background:${f.color}"></span><span class="t">${esc(f.name)}</span>${i < 3 ? '<span class="tag">Top ' + (i+1) + '</span>' : ''}</div>
+      <div class="ct">${n} day${n===1?'':'s'} \u00b7 ${pct(n / S.hpTotal)}</div>
+      <div class="bar"><i style="width:${(n/max*100).toFixed(0)}%;background:${f.color}"></i></div>
+      <div class="meta2">Most often on ${HM_DOW[bestDow]} (${S.fwDow[f.idx][bestDow]}) \u00b7 peak month ${monthLabel(M.months[bestMon])} (${S.fwMon[f.idx][bestMon]})</div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('.top-fw').forEach(el => el.addEventListener('click', ()=> toggleSolo(+el.dataset.i)));
+}
+
+function renderMonths(M, S){
+  const wrap = document.getElementById('hmMonths');
+  const keyedMo = S.mo.filter(m => m.keyed);
+  const nowKey = monthKey(new Date());
+  const full = keyedMo.filter(m => m.key !== nowKey);
+  const maxRate = Math.max(...keyedMo.map(m => m.rate), 0);
+  const pool = full.length >= 2 ? full : keyedMo;
+  const minRate = Math.min(...pool.map(m => m.rate), 1);
+  let html = keyedMo.map(m=>{
+    const cls = ['mo-row'];
+    let glyph = '';
+    if (m.rate === maxRate && maxRate > 0){ cls.push('best'); glyph = '\u25b2 '; }
+    else if (pool.includes(m) && m.rate === minRate){ cls.push('quiet'); glyph = '\u25bc '; }
+    const top = m.top >= 0 ? `<span class="dot" style="background:${M.fws[m.top].color}" title="Top framework: ${esc(M.fws[m.top].name)}"></span>` : '';
+    return `<div class="${cls.join(' ')}">
+      <div class="lb">${glyph}${monthLabel(m.key)}${m.key === nowKey ? '*' : ''}</div>
+      <div class="bar"><i style="width:${(m.rate*100).toFixed(0)}%"></i></div>
+      <div class="ct">${top}${m.hit}/${m.logged} \u00b7 ${pct(m.rate)}</div></div>`;
+  }).join('');
+  html += `<div class="hm-foot">\u25b2 most probable \u00b7 \u25bc quietest \u00b7 dot = top framework that month${keyedMo.some(m=>m.key===nowKey) ? ' \u00b7 * month in progress' : ''}</div>`;
+  const awaiting = S.mo.filter(m => !m.keyed);
+  if (awaiting.length){
+    html += `<div class="mo-pending-title">Awaiting data (still being keyed in)</div><div class="mo-pending">` +
+      awaiting.map(m => `<span>${monthLabel(m.key)} \u00b7 ${m.logged} logged days</span>`).join('') + '</div>';
+  }
+  wrap.innerHTML = html;
+}
+
+function render(){
+  const meta = document.getElementById('hmMeta');
+  const M = buildModel(hmData, hmSolo);
+  if (!M){ meta.textContent = 'No logged days yet'; return; }
+  const S = buildStats(M);
+  renderKpis(M, S);
+  renderScale(M, S);
+  renderTable(M);
+  renderTop(M, S);
+  renderMonths(M, S);
+  const g = hmData.generated_at ? new Date(hmData.generated_at) : null;
+  meta.textContent = 'Indices Log \u00b7 AM Framework' + (g && !isNaN(g) ? ' \u00b7 data as of ' + g.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '');
+}
+
+function loadHeatmap(){
+  return fetch('am-frameworks.json', { cache:'no-store' })
+    .then(r => { if (!r.ok) throw new Error('no am-frameworks.json'); return r.json(); })
+    .then(d => { if (d && Array.isArray(d.frameworks) && Array.isArray(d.logged) && Array.isArray(d.days)) hmData = d; })
+    .catch(() => { /* keep the embedded snapshot */ })
+    .then(render);
+}
+window.loadHeatmap = loadHeatmap;
+
+render();        // draw instantly from the embedded snapshot
+loadHeatmap();   // then upgrade to am-frameworks.json if it exists
+})();
 </script>
 </body>
 </html>
