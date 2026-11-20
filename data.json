@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-20T11:00:24.667678+00:00",
+  "generated_at": "2026-11-20T11:05:13.948947+00:00",
   "total_trades": 58,
   "total_pnl": 200.69,
-  "multi_tagged_trades": 11,
-  "attributed_pnl_total": 843.38,
+  "multi_tagged_trades": 14,
+  "attributed_pnl_total": 1029.7,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -441,6 +441,25 @@
       ]
     },
     {
+      "name": "10AM H4 Retracement & Continuation",
+      "trades": 1,
+      "wins": 1,
+      "losses": 0,
+      "be": 0,
+      "win_rate": 100.0,
+      "net_pnl": 247.0,
+      "avg_win": 247.0,
+      "avg_loss": 0,
+      "profit_factor": null,
+      "expectancy": 247.0,
+      "series": [
+        {
+          "date": "2026-11-12",
+          "cum": 247.0
+        }
+      ]
+    },
+    {
       "name": "Final Hour [3:15-3:45 PM]",
       "trades": 4,
       "wins": 4,
@@ -550,6 +569,29 @@
         {
           "date": "2026-05-28",
           "cum": -1.69
+        }
+      ]
+    },
+    {
+      "name": "10AM H4 EQ Retracement",
+      "trades": 2,
+      "wins": 0,
+      "losses": 1,
+      "be": 1,
+      "win_rate": 0.0,
+      "net_pnl": -60.68,
+      "avg_win": 0,
+      "avg_loss": 61.6,
+      "profit_factor": 0.0,
+      "expectancy": -30.34,
+      "series": [
+        {
+          "date": "2026-11-09",
+          "cum": 0.92
+        },
+        {
+          "date": "2026-11-13",
+          "cum": -60.68
         }
       ]
     },
