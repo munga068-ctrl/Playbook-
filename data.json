@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-20T11:10:19.079132+00:00",
+  "generated_at": "2026-11-20T11:15:18.323519+00:00",
   "total_trades": 58,
   "total_pnl": 200.69,
-  "multi_tagged_trades": 16,
-  "attributed_pnl_total": 1306.34,
+  "multi_tagged_trades": 18,
+  "attributed_pnl_total": 1194.18,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -335,29 +335,6 @@
       ]
     },
     {
-      "name": "10AM H4 Retracement & Continuation",
-      "trades": 2,
-      "wins": 2,
-      "losses": 0,
-      "be": 0,
-      "win_rate": 100.0,
-      "net_pnl": 419.66,
-      "avg_win": 209.83,
-      "avg_loss": 0,
-      "profit_factor": null,
-      "expectancy": 209.83,
-      "series": [
-        {
-          "date": "2026-10-19",
-          "cum": 172.66
-        },
-        {
-          "date": "2026-11-12",
-          "cum": 419.66
-        }
-      ]
-    },
-    {
       "name": "2PM H4 PO3",
       "trades": 10,
       "wins": 5,
@@ -409,6 +386,33 @@
         {
           "date": "2026-04-22",
           "cum": 410.84
+        }
+      ]
+    },
+    {
+      "name": "10AM H4 Retracement & Continuation",
+      "trades": 3,
+      "wins": 2,
+      "losses": 1,
+      "be": 0,
+      "win_rate": 66.67,
+      "net_pnl": 370.5,
+      "avg_win": 209.83,
+      "avg_loss": 49.16,
+      "profit_factor": 8.54,
+      "expectancy": 123.5,
+      "series": [
+        {
+          "date": "2026-09-17",
+          "cum": -49.16
+        },
+        {
+          "date": "2026-10-19",
+          "cum": 123.5
+        },
+        {
+          "date": "2026-11-12",
+          "cum": 370.5
         }
       ]
     },
@@ -491,33 +495,6 @@
       ]
     },
     {
-      "name": "10AM H4 EQ Retracement",
-      "trades": 3,
-      "wins": 1,
-      "losses": 1,
-      "be": 1,
-      "win_rate": 33.33,
-      "net_pnl": 43.3,
-      "avg_win": 103.98,
-      "avg_loss": 61.6,
-      "profit_factor": 1.69,
-      "expectancy": 14.43,
-      "series": [
-        {
-          "date": "2026-10-20",
-          "cum": 103.98
-        },
-        {
-          "date": "2026-11-09",
-          "cum": 104.9
-        },
-        {
-          "date": "2026-11-13",
-          "cum": 43.3
-        }
-      ]
-    },
-    {
       "name": "10AM H4 Full Reversal [MMSM]",
       "trades": 2,
       "wins": 0,
@@ -596,6 +573,37 @@
         {
           "date": "2026-05-28",
           "cum": -1.69
+        }
+      ]
+    },
+    {
+      "name": "10AM H4 EQ Retracement",
+      "trades": 4,
+      "wins": 1,
+      "losses": 2,
+      "be": 1,
+      "win_rate": 25.0,
+      "net_pnl": -19.7,
+      "avg_win": 103.98,
+      "avg_loss": 62.3,
+      "profit_factor": 0.83,
+      "expectancy": -4.92,
+      "series": [
+        {
+          "date": "2026-09-10",
+          "cum": -63.0
+        },
+        {
+          "date": "2026-10-20",
+          "cum": 40.98
+        },
+        {
+          "date": "2026-11-09",
+          "cum": 41.9
+        },
+        {
+          "date": "2026-11-13",
+          "cum": -19.7
         }
       ]
     },
