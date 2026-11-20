@@ -1248,7 +1248,6 @@ function renderTable(M){
 function renderTop(M, S){
   const wrap = document.getElementById('hmTop');
   if (!S.ranked.length){ wrap.innerHTML = '<div class="hm-foot">No frameworks logged yet.</div>'; return; }
-  const max = S.fwTotal[S.ranked[0].idx];
   wrap.innerHTML = S.ranked.map((f,i)=>{
     const n = S.fwTotal[f.idx];
     const bestDow = S.fwDow[f.idx].reduce((b,v,r)=> v > S.fwDow[f.idx][b] ? r : b, 0);
@@ -1258,7 +1257,7 @@ function renderTop(M, S){
       <div class="rank">${i+1}</div>
       <div class="nm"><span class="dot" style="background:${f.color}"></span><span class="t">${esc(f.name)}</span>${i < 3 ? '<span class="tag">Top ' + (i+1) + '</span>' : ''}</div>
       <div class="ct">${n} day${n===1?'':'s'} \u00b7 ${pct(n / S.hpTotal)}</div>
-      <div class="bar"><i style="width:${(n/max*100).toFixed(0)}%;background:${f.color}"></i></div>
+      <div class="bar"><i style="width:${(n/S.hpTotal*100).toFixed(1)}%;background:${f.color}"></i></div>
       <div class="meta2">Most often on ${HM_DOW[bestDow]} (${S.fwDow[f.idx][bestDow]}) \u00b7 peak month ${monthLabel(M.months[bestMon])} (${S.fwMon[f.idx][bestMon]})</div>
     </div>`;
   }).join('');
