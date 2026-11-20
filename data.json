@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-20T10:25:14.144381+00:00",
+  "generated_at": "2026-11-20T10:30:23.383161+00:00",
   "total_trades": 58,
   "total_pnl": 200.69,
-  "multi_tagged_trades": 19,
-  "attributed_pnl_total": 1187.06,
+  "multi_tagged_trades": 12,
+  "attributed_pnl_total": 794.59,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -394,57 +394,6 @@
       ]
     },
     {
-      "name": "10 AM 4HR PO3",
-      "trades": 9,
-      "wins": 4,
-      "losses": 5,
-      "be": 0,
-      "win_rate": 44.44,
-      "net_pnl": 352.69,
-      "avg_win": 152.39,
-      "avg_loss": 51.37,
-      "profit_factor": 2.37,
-      "expectancy": 39.19,
-      "series": [
-        {
-          "date": "2026-02-19",
-          "cum": -66.46
-        },
-        {
-          "date": "2026-07-09",
-          "cum": -115.25
-        },
-        {
-          "date": "2026-07-16",
-          "cum": 84.62
-        },
-        {
-          "date": "2026-07-23",
-          "cum": 45.78
-        },
-        {
-          "date": "2026-09-04",
-          "cum": 6.0
-        },
-        {
-          "date": "2026-09-10",
-          "cum": -57.0
-        },
-        {
-          "date": "2026-09-17",
-          "cum": 4.69
-        },
-        {
-          "date": "2026-09-22",
-          "cum": 105.69
-        },
-        {
-          "date": "2026-11-12",
-          "cum": 352.69
-        }
-      ]
-    },
-    {
       "name": "1:50-2:10 Macro",
       "trades": 8,
       "wins": 3,
@@ -656,16 +605,16 @@
     },
     {
       "name": "\u274c No Setup",
-      "trades": 10,
+      "trades": 11,
       "wins": 0,
-      "losses": 10,
+      "losses": 11,
       "be": 0,
       "win_rate": 0.0,
-      "net_pnl": -582.72,
+      "net_pnl": -622.5,
       "avg_win": 0,
-      "avg_loss": 58.27,
+      "avg_loss": 56.59,
       "profit_factor": 0.0,
-      "expectancy": -58.27,
+      "expectancy": -56.59,
       "series": [
         {
           "date": "2026-01-09",
@@ -696,16 +645,20 @@
           "cum": -421.72
         },
         {
+          "date": "2026-09-04",
+          "cum": -461.5
+        },
+        {
           "date": "2026-09-14",
-          "cum": -470.57
+          "cum": -510.35
         },
         {
           "date": "2026-09-17",
-          "cum": -507.16
+          "cum": -546.94
         },
         {
           "date": "2026-11-19",
-          "cum": -582.72
+          "cum": -622.5
         }
       ]
     }
