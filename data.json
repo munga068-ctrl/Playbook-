@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-20T11:15:18.323519+00:00",
+  "generated_at": "2026-11-20T11:20:17.392740+00:00",
   "total_trades": 58,
   "total_pnl": 200.69,
-  "multi_tagged_trades": 18,
-  "attributed_pnl_total": 1194.18,
+  "multi_tagged_trades": 20,
+  "attributed_pnl_total": 1370.43,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -241,16 +241,16 @@
   "frameworks": [
     {
       "name": "10:50-11:10-Lunch Hour Macro",
-      "trades": 20,
+      "trades": 19,
       "wins": 9,
-      "losses": 8,
+      "losses": 7,
       "be": 3,
-      "win_rate": 45.0,
-      "net_pnl": 849.35,
+      "win_rate": 47.37,
+      "net_pnl": 901.11,
       "avg_win": 138.98,
-      "avg_loss": 52.88,
-      "profit_factor": 2.96,
-      "expectancy": 42.47,
+      "avg_loss": 53.04,
+      "profit_factor": 3.37,
+      "expectancy": 47.43,
       "series": [
         {
           "date": "2026-01-06",
@@ -301,36 +301,63 @@
           "cum": 417.51
         },
         {
-          "date": "2026-09-25",
-          "cum": 365.75
-        },
-        {
           "date": "2026-10-19",
-          "cum": 538.41
+          "cum": 590.17
         },
         {
           "date": "2026-10-20",
-          "cum": 642.39
+          "cum": 694.15
         },
         {
           "date": "2026-11-09",
-          "cum": 643.31
+          "cum": 695.07
         },
         {
           "date": "2026-11-12",
-          "cum": 890.31
+          "cum": 942.07
         },
         {
           "date": "2026-11-13",
-          "cum": 828.71
+          "cum": 880.47
         },
         {
           "date": "2026-11-18",
-          "cum": 846.53
+          "cum": 898.29
         },
         {
           "date": "2026-11-18",
-          "cum": 849.35
+          "cum": 901.11
+        }
+      ]
+    },
+    {
+      "name": "10AM H4 Retracement & Continuation",
+      "trades": 4,
+      "wins": 3,
+      "losses": 1,
+      "be": 0,
+      "win_rate": 75.0,
+      "net_pnl": 432.19,
+      "avg_win": 160.45,
+      "avg_loss": 49.16,
+      "profit_factor": 9.79,
+      "expectancy": 108.05,
+      "series": [
+        {
+          "date": "2026-09-17",
+          "cum": 61.69
+        },
+        {
+          "date": "2026-09-17",
+          "cum": 12.53
+        },
+        {
+          "date": "2026-10-19",
+          "cum": 185.19
+        },
+        {
+          "date": "2026-11-12",
+          "cum": 432.19
         }
       ]
     },
@@ -386,33 +413,6 @@
         {
           "date": "2026-04-22",
           "cum": 410.84
-        }
-      ]
-    },
-    {
-      "name": "10AM H4 Retracement & Continuation",
-      "trades": 3,
-      "wins": 2,
-      "losses": 1,
-      "be": 0,
-      "win_rate": 66.67,
-      "net_pnl": 370.5,
-      "avg_win": 209.83,
-      "avg_loss": 49.16,
-      "profit_factor": 8.54,
-      "expectancy": 123.5,
-      "series": [
-        {
-          "date": "2026-09-17",
-          "cum": -49.16
-        },
-        {
-          "date": "2026-10-19",
-          "cum": 123.5
-        },
-        {
-          "date": "2026-11-12",
-          "cum": 370.5
         }
       ]
     },
@@ -491,6 +491,41 @@
         {
           "date": "2026-02-26",
           "cum": 207.54
+        }
+      ]
+    },
+    {
+      "name": "10AM H4 EQ Retracement",
+      "trades": 5,
+      "wins": 2,
+      "losses": 2,
+      "be": 1,
+      "win_rate": 40.0,
+      "net_pnl": 94.86,
+      "avg_win": 109.27,
+      "avg_loss": 62.3,
+      "profit_factor": 1.75,
+      "expectancy": 18.97,
+      "series": [
+        {
+          "date": "2026-09-10",
+          "cum": -63.0
+        },
+        {
+          "date": "2026-09-23",
+          "cum": 51.56
+        },
+        {
+          "date": "2026-10-20",
+          "cum": 155.54
+        },
+        {
+          "date": "2026-11-09",
+          "cum": 156.46
+        },
+        {
+          "date": "2026-11-13",
+          "cum": 94.86
         }
       ]
     },
@@ -577,37 +612,6 @@
       ]
     },
     {
-      "name": "10AM H4 EQ Retracement",
-      "trades": 4,
-      "wins": 1,
-      "losses": 2,
-      "be": 1,
-      "win_rate": 25.0,
-      "net_pnl": -19.7,
-      "avg_win": 103.98,
-      "avg_loss": 62.3,
-      "profit_factor": 0.83,
-      "expectancy": -4.92,
-      "series": [
-        {
-          "date": "2026-09-10",
-          "cum": -63.0
-        },
-        {
-          "date": "2026-10-20",
-          "cum": 40.98
-        },
-        {
-          "date": "2026-11-09",
-          "cum": 41.9
-        },
-        {
-          "date": "2026-11-13",
-          "cum": -19.7
-        }
-      ]
-    },
-    {
       "name": "Very Shallow Retracement Continuation",
       "trades": 1,
       "wins": 0,
@@ -628,16 +632,16 @@
     },
     {
       "name": "\u274c No Setup",
-      "trades": 15,
+      "trades": 16,
       "wins": 0,
-      "losses": 15,
+      "losses": 16,
       "be": 0,
       "win_rate": 0.0,
-      "net_pnl": -863.75,
+      "net_pnl": -915.51,
       "avg_win": 0,
-      "avg_loss": 57.58,
+      "avg_loss": 57.22,
       "profit_factor": 0.0,
-      "expectancy": -57.58,
+      "expectancy": -57.22,
       "series": [
         {
           "date": "2026-01-07",
@@ -696,8 +700,12 @@
           "cum": -788.19
         },
         {
+          "date": "2026-09-25",
+          "cum": -839.95
+        },
+        {
           "date": "2026-11-19",
-          "cum": -863.75
+          "cum": -915.51
         }
       ]
     }
