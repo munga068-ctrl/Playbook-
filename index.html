@@ -320,11 +320,8 @@ table.hm td{ height:60px; border-radius:8px; padding:6px 6px 5px; text-align:cen
 table.hm td.hm-cell:hover{ border-color:var(--gold); }
 table.hm td .v{ font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:13px; font-weight:700; color:var(--ink); line-height:1.1; }
 table.hm td .s{ font-size:9.5px; color:var(--ink-dim); margin-top:2px; }
-table.hm td .mix{ display:flex; gap:1px; height:5px; border-radius:3px; overflow:hidden; margin-top:5px; background:rgba(127,127,127,.18); }
-table.hm td .mix i{ display:block; height:100%; }
 table.hm td.zero .v{ color:var(--ink-dim); font-weight:500; }
-table.hm td.nodata{ background:repeating-linear-gradient(135deg, transparent 0 6px, rgba(127,127,127,.12) 6px 7px);
-  border:1px dashed var(--line); color:var(--ink-dim); font-size:12px; opacity:.85; }
+table.hm td.nodata{ background:transparent; border:1.5px dotted rgba(127,127,127,.6); color:var(--ink-dim); font-size:13px; }
 table.hm td.hm-total{ background:transparent; border:1px solid var(--line); }
 .hm-foot{ font-size:10.5px; color:var(--ink-dim); margin-top:8px; line-height:1.5; }
 .hm-lower{ display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:28px; margin-top:28px; }
@@ -406,7 +403,7 @@ table.hm td.hm-total{ background:transparent; border:1px solid var(--line); }
     <div class="hm-head">
       <div>
         <h3>High-probability days · Weekday × Month</h3>
-        <div class="hm-sub">A day with an <b>AM FRAMEWORK</b> logged in the Indices Log is a high-probability day for the playbook. Each cell shows <b>high-probability days / logged trading days</b>; the colour deepens with the share of days that carried a framework, and the thin bar underneath shows <i>which</i> frameworks made up those days.</div>
+        <div class="hm-sub">A day with an <b>AM FRAMEWORK</b> logged in the Indices Log is a high-probability day for the playbook. Each cell shows <b>high-probability days / logged trading days</b>; the colour deepens with the share of days that carried a framework. Hover a cell to see which frameworks made up those days.</div>
       </div>
       <div class="hm-head-right">
         <div class="seg-control" id="hmYearControl" style="display:none"></div>
@@ -427,7 +424,7 @@ table.hm td.hm-total{ background:transparent; border:1px solid var(--line); }
     </div>
     <div class="hm-solo-note" id="hmSoloNote"></div>
     <div class="hm-scroll"><table class="hm" id="hmTable"></table></div>
-    <div class="hm-foot">Hatched columns are months still being keyed into the Indices Log. They fill in automatically as AM FRAMEWORK is logged, so a hatched month means <i>no data yet</i>, not a quiet month.</div>
+    <div class="hm-foot">Each year always shows 12 months. Dotted blank cells are months with no AM FRAMEWORK recorded yet. A month becomes active as soon as a framework is logged on any of its days.</div>
     <div class="hm-lower">
       <div class="hm-box"><h4>Top frameworks visible on high-probability days</h4><div id="hmTop"></div></div>
       <div class="hm-box"><h4>Month by month</h4><div id="hmMonths"></div></div>
@@ -1039,6 +1036,14 @@ const AM_HEATMAP_EMBEDDED = {"generated_at":"2026-11-19T12:30:00Z","frameworks":
 
 const HM_PALETTE = ['#5aa9e6','#4caf7d','#b07cd8','#e0715f','#3fc1c9','#e08fb3','#8fbf5a','#6f7de0','#d98c4f','#7fd1a3','#c46fb3','#5fa0a8','#a0a6b4'];
 const HM_NEUTRAL = '#8a8f98';
+const HM_COLOR_OVERRIDE = {
+  '10:50-11:10-Lunch Hour Macro':           '#f7e98a', // light yellow
+  '10AM H4 EQ Retracement':                 '#4b5059', // black, not very dark
+  '10AM H4 Retracement & Continuation':     '#b9a2ee', // light violet
+  'Very Shallow Retracement Continuation':  '#e5383b', // red
+  '10AM H4 Full Reversal [MMBM]':           '#3FC1C9',
+  '10AM H4 Full Reversal [MMSM]':           '#f6b26b'  // light orange
+};
 const HM_DOW = ['Mon','Tue','Wed','Thu','Fri'];
 const HM_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -1056,7 +1061,11 @@ function pct(x){ return Math.round(x * 100) + '%'; }
 function buildModel(data, solo){
   const fws = data.frameworks.map((f,i)=>({ name:f.name, neutral:!!f.neutral, idx:i }));
   let pi = 0;
-  fws.forEach(f => { f.color = f.neutral ? HM_NEUTRAL : HM_PALETTE[pi++ % HM_PALETTE.length]; });
+  fws.forEach(f => {
+    if (f.neutral){ f.color = HM_NEUTRAL; return; }
+    const p = HM_PALETTE[pi++ % HM_PALETTE.length];
+    f.color = HM_COLOR_OVERRIDE[f.name] || p;
+  });
 
   const dayMap = new Map();
   data.days.forEach(([d,l]) => dayMap.set(d,l));
@@ -1070,27 +1079,15 @@ function buildModel(data, solo){
   const year = years.includes(hmYear) ? hmYear : years[years.length - 1];
   const dates = allDates.filter(d => +d.slice(0,4) === year);
 
-  // contiguous list of months from the first logged day to the latest (within the year)
-  const months = [];
-  let [y,m] = dates[0].slice(0,7).split('-').map(Number);
-  const [ly,lm] = dates[dates.length-1].slice(0,7).split('-').map(Number);
-  while (y < ly || (y === ly && m <= lm)){
-    months.push(y + '-' + String(m).padStart(2,'0'));
-    m++; if (m > 12){ m = 1; y++; }
-  }
+  // every year always shows all 12 months
+  const months = Array.from({length:12}, (_,i)=> year + '-' + String(i+1).padStart(2,'0'));
   const mIdx = new Map(months.map((k,i)=>[k,i]));
 
-  // first month (across ALL years) in which any real (non-neutral) framework was keyed;
-  // earlier months = "awaiting data", so a new year starts as keyed rather than hatched
-  let globalKeyedFrom = null;
-  data.days.forEach(([d,l])=>{
-    if (l.some(i => !fws[i].neutral)){
-      const k = d.slice(0,7);
-      if (globalKeyedFrom === null || k < globalKeyedFrom) globalKeyedFrom = k;
-    }
-  });
-  const keyed = months.map(k => globalKeyedFrom !== null && k >= globalKeyedFrom);
-  const keyedFrom = months.find((k,i) => keyed[i]) || null; // first keyed month inside this year
+  // a month is active only if a real framework was recorded on any of its days
+  const fwMonths = new Set();
+  data.days.forEach(([d,l]) => { if (l.some(i => !fws[i].neutral)) fwMonths.add(d.slice(0,7)); });
+  const keyed = months.map(k => fwMonths.has(k));
+  const keyedFrom = months.find((k,i) => keyed[i]) || null;
 
   const mk = () => ({ logged:0, hit:0, fw:new Array(fws.length).fill(0) });
   const cells  = HM_DOW.map(()=>months.map(mk)); // honours the isolate/solo filter
@@ -1146,7 +1143,7 @@ function renderKpis(M, S){
   const hot = best(keyedMo, +1);
   const hotFull = best(full, +1);
   const cold = best(full.length >= 2 ? full : keyedMo, -1);
-  const awaiting = S.mo.filter(m => !m.keyed);
+  const awaiting = S.mo.filter(m => !m.keyed && m.logged);
 
   let html = '';
   html += `<div class="hm-kpi"><div class="k-label">High-probability days</div>
@@ -1169,7 +1166,7 @@ function renderKpis(M, S){
   }
   html += `<div class="hm-kpi pending"><div class="k-label">Awaiting data</div>
     <div class="k-value">${awaiting.length ? awaiting.length + ' month' + (awaiting.length === 1 ? '' : 's') : 'None'}</div>
-    <div class="k-note">${awaiting.length ? monthLabel(awaiting[0].key) + ' \u2013 ' + monthLabel(awaiting[awaiting.length-1].key) + ' \u00b7 still being keyed in; fills automatically' : 'Every logged month has framework data'}</div></div>`;
+    <div class="k-note">${awaiting.length ? awaiting.map(m => monthLabel(m.key)).join(', ') + ' \u00b7 logged days, no framework recorded yet' : 'Every logged month has framework data'}</div></div>`;
   document.getElementById('hmKpis').innerHTML = html;
 }
 
@@ -1192,21 +1189,17 @@ function renderScale(M, S){
 }
 
 function cellHtml(c, keyed, label, fws, solo){
-  if (!keyed) return `<td class="hm-cell nodata" title="${esc(label)}: awaiting data \u2014 still being keyed in">\u2014</td>`;
+  if (!keyed) return `<td class="hm-cell nodata" title="${esc(label)}: no framework recorded yet">\u2014</td>`;
   if (!c.logged) return `<td class="hm-cell zero"><div class="v">\u2013</div></td>`;
   const rate = c.hit / c.logged;
   const bg = c.hit ? `background:rgba(var(--hm-rgb),${(0.10 + 0.68*rate).toFixed(2)});` : '';
-  const total = c.fw.reduce((a,b)=>a+b,0);
-  let mix = '';
   let tip = `${label}: ${c.hit} of ${c.logged} logged days (${pct(rate)})`;
-  if (solo !== null){
-    mix = `<div class="mix"><i style="width:${(rate*100).toFixed(0)}%;background:${fws[solo].color}"></i></div>`;
-  } else if (total){
-    mix = '<div class="mix">' + c.fw.map((n,i)=> n ? `<i style="width:${(n/total*100).toFixed(1)}%;background:${fws[i].color}"></i>` : '').join('') + '</div>';
-    tip += '\n' + c.fw.map((n,i)=> n ? `\u2022 ${fws[i].name} \u00d7${n}` : '').filter(Boolean).join('\n');
+  if (solo === null){
+    const lines = c.fw.map((n,i)=> n ? `\u2022 ${fws[i].name} \u00d7${n}` : '').filter(Boolean);
+    if (lines.length) tip += '\n' + lines.join('\n');
   }
   return `<td class="hm-cell${c.hit ? '' : ' zero'}" style="${bg}" title="${esc(tip).replace(/\n/g,'&#10;')}">
-    <div class="v">${c.hit}/${c.logged}</div><div class="s">${pct(rate)}</div>${mix}</td>`;
+    <div class="v">${c.hit}/${c.logged}</div><div class="s">${pct(rate)}</div></td>`;
 }
 
 function renderTable(M){
@@ -1280,7 +1273,7 @@ function renderMonths(M, S){
       <div class="ct">${top}${m.hit}/${m.logged} \u00b7 ${pct(m.rate)}</div></div>`;
   }).join('');
   html += `<div class="hm-foot">\u25b2 most probable \u00b7 \u25bc quietest \u00b7 dot = top framework that month${keyedMo.some(m=>m.key===nowKey) ? ' \u00b7 * month in progress' : ''}</div>`;
-  const awaiting = S.mo.filter(m => !m.keyed);
+  const awaiting = S.mo.filter(m => !m.keyed && m.logged);
   if (awaiting.length){
     html += `<div class="mo-pending-title">Awaiting data (still being keyed in)</div><div class="mo-pending">` +
       awaiting.map(m => `<span>${monthLabel(m.key)} \u00b7 ${m.logged} logged days</span>`).join('') + '</div>';
