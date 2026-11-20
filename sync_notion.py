@@ -85,6 +85,11 @@ PROP_PM_REL = "🟧 PM FRAMEWORK"
 PROP_LOG_DATE = "Date"
 PROP_LOG_AM_REL = "🟦 AM FRAMEWORK"
 
+# --- event tags looked for in the Indices Log row Name (title). A day carrying any of
+# these is a "low-probability day" on the dashboard (FOMC/CPI/NFP also flag the day before;
+# that part is worked out in index.html). Matched as whole words, case-insensitive. ---
+LOW_PROB_TAGS = ("FOMC", "CPI", "NFP", "PPI")
+
 
 def notion_request(path, payload=None):
     url = f"{API_BASE}{path}"
@@ -152,7 +157,8 @@ def build_heatmap(am_pages, log_ds):
     Every row of the Indices Log is a logged trading day; a day that has an AM
     FRAMEWORK related to it is a 'high-probability day'. Output matches the shape
     index.html reads: frameworks (colour order = creation order, so colours stay
-    stable as new frameworks are added), logged dates, and per-day framework indexes.
+    stable as new frameworks are added), logged dates, per-day framework indexes,
+    and events (days whose Name carries an FOMC / CPI / NFP / PPI tag).
     """
     ordered = sorted(am_pages, key=lambda p: p.get("created_time", ""))
     frameworks, index = [], {}
@@ -164,7 +170,7 @@ def build_heatmap(am_pages, log_ds):
         index[p["id"]] = len(frameworks)
         frameworks.append(entry)
 
-    logged, by_day = set(), defaultdict(set)
+    logged, by_day, events = set(), defaultdict(set), []
     rel_seen = False
     for page in query_all(log_ds):
         props = page.get("properties", {})
@@ -174,6 +180,9 @@ def build_heatmap(am_pages, log_ds):
             continue
         day = start[:10]
         logged.add(day)
+        title = get_title(page)
+        if any(re.search(r"\b" + tag + r"\b", title, re.I) for tag in LOW_PROB_TAGS):
+            events.append([day, title])
         rel_prop = _find_prop(props, PROP_LOG_AM_REL, "relation", name_hint="AM FRAMEWORK")
         if rel_prop is not None:
             rel_seen = True
@@ -191,6 +200,7 @@ def build_heatmap(am_pages, log_ds):
         "frameworks": frameworks,
         "logged": sorted(logged),
         "days": [[d, sorted(ix)] for d, ix in sorted(by_day.items()) if ix],
+        "events": sorted(events),
     }
 
 
@@ -215,7 +225,8 @@ def sync_heatmap(am_pages):
         pass
     with open(out_path, "w") as f:
         json.dump(heat, f, separators=(",", ":"))
-    print(f"Heatmap: {len(heat['logged'])} logged days, {len(heat['days'])} with an AM framework -> {out_path}")
+    print(f"Heatmap: {len(heat['logged'])} logged days, {len(heat['days'])} with an AM framework, "
+          f"{len(heat['events'])} event-tagged days -> {out_path}")
 
 
 def _normalize_framework_name(name):
