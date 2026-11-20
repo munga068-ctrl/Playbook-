@@ -320,6 +320,8 @@ table.hm td{ height:60px; border-radius:8px; padding:6px 6px 5px; text-align:cen
 table.hm td.hm-cell:hover{ border-color:var(--gold); }
 table.hm td .v{ font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; font-size:13px; font-weight:700; color:var(--ink); line-height:1.1; }
 table.hm td .s{ font-size:9.5px; color:var(--ink-dim); margin-top:2px; }
+table.hm td .mix{ display:flex; gap:1px; height:5px; border-radius:3px; overflow:hidden; margin-top:5px; background:rgba(127,127,127,.18); }
+table.hm td .mix i{ display:block; height:100%; }
 table.hm td.zero .v{ color:var(--ink-dim); font-weight:500; }
 table.hm td.nodata{ background:transparent; border:1.5px dotted rgba(127,127,127,.6); color:var(--ink-dim); font-size:13px; }
 table.hm td.hm-total{ background:transparent; border:1px solid var(--line); }
@@ -1037,7 +1039,7 @@ const AM_HEATMAP_EMBEDDED = {"generated_at":"2026-11-19T12:30:00Z","frameworks":
 const HM_PALETTE = ['#5aa9e6','#4caf7d','#b07cd8','#e0715f','#3fc1c9','#e08fb3','#8fbf5a','#6f7de0','#d98c4f','#7fd1a3','#c46fb3','#5fa0a8','#a0a6b4'];
 const HM_NEUTRAL = '#8a8f98';
 const HM_COLOR_OVERRIDE = {
-  '10:50-11:10-Lunch Hour Macro':           '#fffcd2', // yellow
+  '10:50-11:10-Lunch Hour Macro':           '#f7e98a', // light yellow
   '10AM H4 EQ Retracement':                 '#4b5059', // black, not very dark
   '10AM H4 Retracement & Continuation':     '#b9a2ee', // light violet
   'Very Shallow Retracement Continuation':  '#e5383b', // red
@@ -1188,18 +1190,28 @@ function renderScale(M, S){
     `Showing only \u201c${M.fws[hmSolo].name}\u201d \u2014 cells show the days it appeared / logged days. Click it again to reset.`;
 }
 
-function cellHtml(c, keyed, label, fws, solo){
+function cellHtml(c, keyed, label, fws, solo, withMix){
   if (!keyed) return `<td class="hm-cell nodata" title="${esc(label)}: no framework recorded yet">\u2014</td>`;
   if (!c.logged) return `<td class="hm-cell zero"><div class="v">\u2013</div></td>`;
   const rate = c.hit / c.logged;
   const bg = c.hit ? `background:rgba(var(--hm-rgb),${(0.10 + 0.68*rate).toFixed(2)});` : '';
+  const total = c.fw.reduce((a,b)=>a+b,0);
+  let mix = '';
   let tip = `${label}: ${c.hit} of ${c.logged} logged days (${pct(rate)})`;
   if (solo === null){
     const lines = c.fw.map((n,i)=> n ? `\u2022 ${fws[i].name} \u00d7${n}` : '').filter(Boolean);
     if (lines.length) tip += '\n' + lines.join('\n');
   }
+  // bars only appear in the All / total row and column
+  if (withMix){
+    if (solo !== null){
+      mix = `<div class="mix"><i style="width:${(rate*100).toFixed(0)}%;background:${fws[solo].color}"></i></div>`;
+    } else if (total){
+      mix = '<div class="mix">' + c.fw.map((n,i)=> n ? `<i style="width:${(n/total*100).toFixed(1)}%;background:${fws[i].color}"></i>` : '').join('') + '</div>';
+    }
+  }
   return `<td class="hm-cell${c.hit ? '' : ' zero'}" style="${bg}" title="${esc(tip).replace(/\n/g,'&#10;')}">
-    <div class="v">${c.hit}/${c.logged}</div><div class="s">${pct(rate)}</div></td>`;
+    <div class="v">${c.hit}/${c.logged}</div><div class="s">${pct(rate)}</div>${mix}</td>`;
 }
 
 function renderTable(M){
@@ -1223,13 +1235,13 @@ function renderTable(M){
         [rowAgg, colAgg[c], grand].forEach(a => { a.logged += x.logged; a.hit += x.hit; x.fw.forEach((n,i)=>{ a.fw[i] += n; }); });
       }
     }
-    h += cellHtml(rowAgg, true, HM_DOW[r] + ' \u00b7 all keyed months', M.fws, hmSolo).replace('class="hm-cell', 'class="hm-total hm-cell') + '</tr>';
+    h += cellHtml(rowAgg, true, HM_DOW[r] + ' \u00b7 all keyed months', M.fws, hmSolo, true).replace('class="hm-cell', 'class="hm-total hm-cell') + '</tr>';
   }
   h += '<tr><th class="hm-row">All</th>';
   M.months.forEach((k,c)=>{
-    h += cellHtml(colAgg[c], M.keyed[c], 'All days \u00b7 ' + monthLabel(k), M.fws, hmSolo).replace('class="hm-cell', 'class="hm-total hm-cell');
+    h += cellHtml(colAgg[c], M.keyed[c], 'All days \u00b7 ' + monthLabel(k), M.fws, hmSolo, true).replace('class="hm-cell', 'class="hm-total hm-cell');
   });
-  h += cellHtml(grand, true, 'All keyed days', M.fws, hmSolo).replace('class="hm-cell', 'class="hm-total hm-cell') + '</tr></tbody>';
+  h += cellHtml(grand, true, 'All keyed days', M.fws, hmSolo, true).replace('class="hm-cell', 'class="hm-total hm-cell') + '</tr></tbody>';
   document.getElementById('hmTable').innerHTML = h;
 }
 
