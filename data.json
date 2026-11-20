@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T10:40:18.659767+00:00",
+  "generated_at": "2026-11-20T10:45:17.402526+00:00",
   "total_trades": 58,
   "total_pnl": 200.69,
   "multi_tagged_trades": 12,
@@ -554,25 +554,6 @@
       ]
     },
     {
-      "name": "9:30 Open P03",
-      "trades": 1,
-      "wins": 0,
-      "losses": 1,
-      "be": 0,
-      "win_rate": 0.0,
-      "net_pnl": -48.53,
-      "avg_win": 0,
-      "avg_loss": 48.53,
-      "profit_factor": 0.0,
-      "expectancy": -48.53,
-      "series": [
-        {
-          "date": "2026-07-22",
-          "cum": -48.53
-        }
-      ]
-    },
-    {
       "name": "9:50-10:10 Macro",
       "trades": 4,
       "wins": 0,
@@ -605,16 +586,16 @@
     },
     {
       "name": "\u274c No Setup",
-      "trades": 11,
+      "trades": 12,
       "wins": 0,
-      "losses": 11,
+      "losses": 12,
       "be": 0,
       "win_rate": 0.0,
-      "net_pnl": -622.5,
+      "net_pnl": -671.03,
       "avg_win": 0,
-      "avg_loss": 56.59,
+      "avg_loss": 55.92,
       "profit_factor": 0.0,
-      "expectancy": -56.59,
+      "expectancy": -55.92,
       "series": [
         {
           "date": "2026-01-09",
@@ -645,20 +626,24 @@
           "cum": -421.72
         },
         {
+          "date": "2026-07-22",
+          "cum": -470.25
+        },
+        {
           "date": "2026-09-04",
-          "cum": -461.5
+          "cum": -510.03
         },
         {
           "date": "2026-09-14",
-          "cum": -510.35
+          "cum": -558.88
         },
         {
           "date": "2026-09-17",
-          "cum": -546.94
+          "cum": -595.47
         },
         {
           "date": "2026-11-19",
-          "cum": -622.5
+          "cum": -671.03
         }
       ]
     }
