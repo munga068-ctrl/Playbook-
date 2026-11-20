@@ -224,6 +224,7 @@ header{
   transition:border-color .15s ease, color .15s ease;
 }
 .chip-btn:hover{ border-color:var(--gold); color:var(--ink); }
+.chip-btn.active{ border-color:var(--gold); color:var(--gold); background:var(--gold-soft); }
 .legend-pills{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
 .legend-pill{
   display:flex; align-items:center; gap:6px;
@@ -292,6 +293,8 @@ html[data-theme="light"]{ --gold-rgb:169,122,47; --hm-rgb:46,138,92; }
 .hm-kpi.hot .k-value{ color:var(--win); }
 .hm-kpi.cold{ border-color:var(--stale-c); }
 .hm-kpi.cold .k-value{ color:var(--stale-c); }
+.hm-kpi.low{ border-color:var(--loss); background:var(--loss-soft); }
+.hm-kpi.low .k-value{ color:var(--loss); }
 .hm-kpi.pending{ border-style:dashed; }
 .hm-scales{ display:flex; gap:32px; flex-wrap:wrap; align-items:flex-start; margin-bottom:14px; }
 .hm-scale-title{ font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-dim); margin-bottom:8px; }
@@ -356,6 +359,11 @@ table.hm td.hm-total{ background:transparent; border:1px solid var(--line); }
 .mo-pending{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
 .mo-pending span{ border:1px dashed var(--line); border-radius:6px; padding:3px 8px; font-size:10.5px; color:var(--ink-dim); font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace; opacity:.8; }
 .mo-pending-title{ font-size:10.5px; color:var(--ink-dim); margin-top:14px; }
+
+/* ================= Low Probability Days card ================= */
+.lp-panel{ margin-top:0; padding:22px 24px 26px; }
+.lp-cols{ display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:28px; margin-top:24px; }
+@media (max-width:1100px){ .lp-cols{ grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -409,6 +417,7 @@ table.hm td.hm-total{ background:transparent; border:1px solid var(--line); }
       </div>
       <div class="hm-head-right">
         <div class="seg-control" id="hmYearControl" style="display:none"></div>
+        <button class="chip-btn" id="hmLowToggle" type="button"></button>
         <div class="meta" id="hmMeta"></div>
       </div>
     </div>
@@ -430,6 +439,16 @@ table.hm td.hm-total{ background:transparent; border:1px solid var(--line); }
     <div class="hm-lower">
       <div class="hm-box"><h4>Top frameworks visible on high-probability days</h4><div id="hmTop"></div></div>
       <div class="hm-box"><h4>Month by month</h4><div id="hmMonths"></div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Low Probability Days · FOMC · CPI · NFP (+1 day before) · PPI</div>
+  <div class="chart-panel lp-panel" id="lpPanel">
+    <div class="hm-sub">Low-probability days are FOMC, CPI and NFP days, the trading day before each, and PPI days (tagged in the Indices Log name). This card compares how often an AM framework appeared on those days against all other days. It covers every keyed month and ignores the heatmap's year selector and low-probability toggle.</div>
+    <div class="hm-kpis" id="lpKpis"></div>
+    <div class="lp-cols">
+      <div class="hm-box"><h4>Frameworks seen on low-probability days</h4><div id="lpFw"></div></div>
+      <div class="hm-box"><h4>By event</h4><div id="lpTags"></div></div>
     </div>
   </div>
 
@@ -1031,6 +1050,12 @@ setInterval(() => {
 // Data: INDICES LOG (every logged NQ trading day) joined to its AM FRAMEWORK relation.
 // The page first tries ./am-frameworks.json (so it can be refreshed without touching
 // this file) and falls back to the snapshot below.
+//
+// Optional field: "events": [["2026-06-10", ["FOMC"]], ["2026-06-11", ["CPI"]], ...]
+// = Indices Log days tagged FOMC / CPI / NFP / PPI in the name property. The day before
+// FOMC, CPI and NFP is derived here (previous logged trading day). Tags such as "CPI-1"
+// are also accepted for an explicit day-before. Without "events" the low-probability
+// card shows a placeholder and the heatmap toggle changes nothing.
 // ---------------------------------------------------------------------------
 // AM_HEATMAP_START
 const AM_HEATMAP_EMBEDDED = {"generated_at":"2026-11-19T12:30:00Z","frameworks":[{"name":"10:50-11:10-Lunch Hour Macro"},{"name":"10AM H4 Retracement & Continuation"},{"name":"10AM H4 EQ Retracement"},{"name":"Shallow Retracement continuation"},{"name":"10AM H4 Full Reversal [MMSM]"},{"name":"10AM H4 Full Reversal [MMBM]"},{"name":"Very Shallow Retracement Continuation"},{"name":"10AM H4 EQ Continuation"},{"name":"10AM H4 EQ Reversal"},{"name":"10AM H4 Reversal"},{"name":"10 AM 4HR PO3"},{"name":"9:50-10:10 Macro"},{"name":"9:30 Open P03"},{"name":"NO FRAMEWORK AM","neutral":true}],"logged":["2025-10-06","2025-10-07","2025-10-14","2025-10-15","2025-10-16","2025-10-17","2025-10-20","2025-10-21","2025-10-22","2025-10-23","2025-10-24","2025-10-27","2025-10-28","2025-10-29","2025-10-30","2025-10-31","2025-11-03","2025-11-04","2025-11-05","2025-11-06","2025-11-07","2025-11-10","2025-11-11","2025-11-12","2025-11-13","2025-11-14","2025-11-17","2025-11-18","2025-11-19","2025-11-20","2025-11-21","2025-11-24","2025-11-25","2025-11-26","2025-12-01","2025-12-02","2025-12-03","2025-12-04","2025-12-05","2025-12-08","2025-12-09","2025-12-10","2025-12-11","2025-12-12","2025-12-15","2025-12-16","2025-12-17","2025-12-18","2025-12-19","2025-12-22","2025-12-23","2025-12-29","2025-12-30","2025-12-31","2026-01-02","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-02-02","2026-02-03","2026-02-04","2026-02-05","2026-02-06","2026-02-09","2026-02-10","2026-02-11","2026-02-12","2026-02-13","2026-02-17","2026-02-18","2026-02-19","2026-02-20","2026-02-23","2026-02-24","2026-02-25","2026-02-26","2026-02-27","2026-03-02","2026-03-03","2026-03-04","2026-03-05","2026-03-06","2026-03-09","2026-03-10","2026-03-11","2026-03-12","2026-03-13","2026-03-16","2026-03-17","2026-03-18","2026-03-19","2026-03-20","2026-03-23","2026-03-24","2026-03-25","2026-03-26","2026-03-27","2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-13","2026-04-14","2026-04-15","2026-04-16","2026-04-17","2026-04-20","2026-04-21","2026-04-22","2026-04-23","2026-04-24","2026-04-27","2026-04-28","2026-04-29","2026-04-30","2026-05-01","2026-05-04","2026-05-05","2026-05-06","2026-05-07","2026-05-08","2026-05-11","2026-05-12","2026-05-13","2026-05-14","2026-05-15","2026-05-18","2026-05-19","2026-05-20","2026-05-21","2026-05-22","2026-05-26","2026-05-27","2026-05-28","2026-05-29","2026-06-01","2026-06-02","2026-06-03","2026-06-04","2026-06-05","2026-06-08","2026-06-09","2026-06-10","2026-06-11","2026-06-12","2026-06-15","2026-06-16","2026-06-17","2026-06-18","2026-06-22","2026-06-23","2026-06-24","2026-06-25","2026-06-26","2026-06-29","2026-06-30","2026-07-01","2026-07-02","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31","2026-08-03","2026-08-04","2026-08-05","2026-08-06","2026-08-07","2026-08-10","2026-08-11","2026-08-12","2026-08-13","2026-08-14","2026-08-17","2026-08-18","2026-08-19","2026-08-20","2026-08-21","2026-08-24","2026-08-25","2026-08-26","2026-08-27","2026-08-28","2026-08-31","2026-09-01","2026-09-02","2026-09-03","2026-09-04","2026-09-08","2026-09-09","2026-09-10","2026-09-11","2026-09-14","2026-09-15","2026-09-16","2026-09-17","2026-09-18","2026-09-21","2026-09-22","2026-09-23","2026-09-24","2026-09-25","2026-09-28","2026-09-29","2026-09-30","2026-10-01","2026-10-02","2026-10-05","2026-10-06","2026-10-07","2026-10-08","2026-10-09","2026-10-13","2026-10-14","2026-10-15","2026-10-16","2026-10-19","2026-10-20","2026-10-21","2026-10-22","2026-10-23","2026-10-26","2026-10-27","2026-10-28","2026-10-29","2026-10-30","2026-11-02","2026-11-03","2026-11-04","2026-11-05","2026-11-06","2026-11-09","2026-11-10","2026-11-12","2026-11-13","2026-11-16","2026-11-17","2026-11-18"],"days":[["2026-06-05",[0,1]],["2026-06-09",[6]],["2026-06-10",[0,4]],["2026-06-15",[0,1]],["2026-06-16",[3]],["2026-06-22",[6]],["2026-06-23",[0,4]],["2026-06-29",[0,5]],["2026-06-30",[3]],["2026-07-02",[3]],["2026-07-08",[0,4]],["2026-07-09",[0,5]],["2026-07-14",[0,5]],["2026-07-15",[3]],["2026-07-17",[0,2]],["2026-07-20",[0,2]],["2026-07-21",[0,5]],["2026-07-22",[0,2]],["2026-07-23",[0,2]],["2026-07-24",[0,5]],["2026-07-27",[3]],["2026-07-28",[0,5]],["2026-07-30",[0,2]],["2026-08-03",[6]],["2026-08-04",[6]],["2026-08-06",[0,2]],["2026-08-07",[0,5]],["2026-08-10",[0,4]],["2026-08-14",[6]],["2026-08-18",[0,1]],["2026-08-21",[0,5]],["2026-09-01",[3]],["2026-09-02",[0,2]],["2026-09-03",[0,1]],["2026-09-04",[4]],["2026-09-08",[0,5]],["2026-09-09",[0,4]],["2026-09-14",[0,1]],["2026-09-15",[3]],["2026-09-17",[0,1]],["2026-09-18",[0,1]],["2026-09-21",[6]],["2026-09-22",[0,2]],["2026-09-23",[0,2]],["2026-09-28",[3]],["2026-10-01",[0,1]],["2026-10-02",[0,4]],["2026-10-05",[6]],["2026-10-06",[0,1]],["2026-10-07",[0,1]],["2026-10-14",[0,3]],["2026-10-15",[0,1]],["2026-10-16",[0,1]],["2026-10-19",[0,1]],["2026-10-20",[0,2]],["2026-10-22",[6]],["2026-10-23",[0,2]],["2026-10-26",[0,2]],["2026-10-30",[0,1]],["2026-11-02",[0,4]],["2026-11-04",[0,2]],["2026-11-05",[3]],["2026-11-09",[0,3]],["2026-11-10",[4]],["2026-11-12",[0,1]],["2026-11-16",[0,2]],["2026-11-17",[3]],["2026-11-18",[4]]]};
@@ -1048,10 +1073,14 @@ const HM_COLOR_OVERRIDE = {
 };
 const HM_DOW = ['Mon','Tue','Wed','Thu','Fri'];
 const HM_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const LP_BASES = ['FOMC','CPI','NFP','PPI'];
+const LP_KEY = 'mmtrades-hide-low';
 
 let hmData = AM_HEATMAP_EMBEDDED;
 let hmSolo = null; // framework index isolated by clicking a chip / top-framework row
 let hmYear = null; // year shown in the grid; null = follow the latest year in the data until one is picked
+let hmHideLow = false; // true = low-probability days are removed from the heatmap and its stats
+try { hmHideLow = localStorage.getItem(LP_KEY) === '1'; } catch(e){}
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 // local-time parsing (never toISOString) so a date can't slip a day in UTC+ zones like Nairobi
@@ -1059,6 +1088,26 @@ function parseD(s){ const p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2
 function monthKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
 function monthLabel(key){ const p = key.split('-'); return HM_MON[+p[1]-1] + ' \u2019' + p[0].slice(2); }
 function pct(x){ return Math.round(x * 100) + '%'; }
+
+// date -> Set of reasons ("FOMC", "FOMC -1", "CPI", "CPI -1", "NFP", "NFP -1", "PPI")
+function lowMapOf(data, sorted){
+  const m = new Map();
+  const add = (d, lab) => { if (!m.has(d)) m.set(d, new Set()); m.get(d).add(lab); };
+  (data.events || []).forEach(([d, tags]) => {
+    (Array.isArray(tags) ? tags : [tags]).forEach(t => {
+      const u = String(t).toUpperCase();
+      const base = LP_BASES.find(b => u.includes(b));
+      if (!base) return;
+      if (/-1|BEFORE|PRE/.test(u.replace(base, ''))){ add(d, base + ' -1'); return; }
+      add(d, base);
+      if (base === 'PPI') return; // PPI has no day-before
+      let prev = null;
+      for (let i = sorted.length - 1; i >= 0; i--) if (sorted[i] < d){ prev = sorted[i]; break; }
+      if (prev && (parseD(d) - parseD(prev)) / 864e5 <= 4) add(prev, base + ' -1');
+    });
+  });
+  return m;
+}
 
 function buildModel(data, solo){
   const fws = data.frameworks.map((f,i)=>({ name:f.name, neutral:!!f.neutral, idx:i }));
@@ -1075,11 +1124,13 @@ function buildModel(data, solo){
   data.days.forEach(([d]) => set.add(d));
   const allDates = [...set].sort().filter(d => { const w = parseD(d).getDay(); return w >= 1 && w <= 5; });
   if (!allDates.length) return null;
+  const lowMap = lowMapOf(data, allDates);
 
   // the grid shows one calendar year at a time so it never outgrows its width
   const years = [...new Set(allDates.map(d => +d.slice(0,4)))];
   const year = years.includes(hmYear) ? hmYear : years[years.length - 1];
-  const dates = allDates.filter(d => +d.slice(0,4) === year);
+  // when the toggle is on, low-probability days drop out of every count in the heatmap
+  const dates = allDates.filter(d => +d.slice(0,4) === year && !(hmHideLow && lowMap.has(d)));
 
   // every year always shows all 12 months
   const months = Array.from({length:12}, (_,i)=> year + '-' + String(i+1).padStart(2,'0'));
@@ -1103,7 +1154,7 @@ function buildModel(data, solo){
     if (solo === null){ if (real.length) x.hit++; real.forEach(i => x.fw[i]++); }
     else if (list.includes(solo)){ x.hit++; x.fw[solo]++; }
   });
-  return { fws, months, keyed, keyedFrom, cells, gcells, year, years, generated:data.generated_at };
+  return { fws, months, keyed, keyedFrom, cells, gcells, year, years, generated:data.generated_at, lowMap, allDates };
 }
 
 function buildStats(M){
@@ -1301,6 +1352,77 @@ function renderYearToggle(M){
   wrap.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => { hmYear = +b.dataset.year; render(); }));
 }
 
+// ---------------- Low probability days card ----------------
+// Always computed from the full data (all keyed months, every year), independent of
+// the heatmap's year selector, solo filter and low-probability toggle.
+function buildLow(data, M){
+  const fws = M.fws;
+  const dayMap = new Map(data.days.map(([d,l]) => [d,l]));
+  const keyedMonths = new Set();
+  data.days.forEach(([d,l]) => { if (l.some(i => !fws[i].neutral)) keyedMonths.add(d.slice(0,7)); });
+  const dates = M.allDates.filter(d => keyedMonths.has(d.slice(0,7)));
+  const mk = () => ({ days:0, hit:0, fw:new Array(fws.length).fill(0) });
+  const low = mk(), norm = mk(), tags = new Map();
+  dates.forEach(d => {
+    const r = (dayMap.get(d) || []).filter(i => !fws[i].neutral);
+    const reasons = M.lowMap.get(d);
+    const b = reasons ? low : norm;
+    b.days++; if (r.length) b.hit++; r.forEach(i => b.fw[i]++);
+    if (reasons) reasons.forEach(t => {
+      if (!tags.has(t)) tags.set(t, mk());
+      const x = tags.get(t); x.days++; if (r.length) x.hit++;
+    });
+  });
+  return { low, norm, tags, total: low.days + norm.days };
+}
+
+function renderLow(M){
+  const k = document.getElementById('lpKpis');
+  const fwBox = document.getElementById('lpFw');
+  const tagBox = document.getElementById('lpTags');
+  if (!(hmData.events || []).length){
+    k.innerHTML = '<div class="hm-foot">No event tags in the sync yet. Add an <b>events</b> field (date + FOMC / CPI / NFP / PPI tags from the Indices Log name) to am-frameworks.json and this card fills in automatically.</div>';
+    fwBox.innerHTML = ''; tagBox.innerHTML = '';
+    return;
+  }
+  const L = buildLow(hmData, M);
+  const lr = L.low.days ? L.low.hit / L.low.days : 0;
+  const nr = L.norm.days ? L.norm.hit / L.norm.days : 0;
+  const allHit = L.low.hit + L.norm.hit;
+  const gap = Math.round((nr - lr) * 100);
+  k.innerHTML =
+    `<div class="hm-kpi low"><div class="k-label">Low-probability days</div>
+      <div class="k-value">${L.low.days}</div>
+      <div class="k-note">${L.total ? pct(L.low.days / L.total) : '0%'} of ${L.total} logged days in keyed months</div></div>
+     <div class="hm-kpi"><div class="k-label">Low days with a framework</div>
+      <div class="k-value">${L.low.hit}/${L.low.days} \u00b7 ${pct(lr)}</div>
+      <div class="k-note">${L.low.days - L.low.hit} had no framework or NO FRAMEWORK AM</div></div>
+     <div class="hm-kpi hot"><div class="k-label">Normal days with a framework</div>
+      <div class="k-value">${L.norm.hit}/${L.norm.days} \u00b7 ${pct(nr)}</div>
+      <div class="k-note">Days with no FOMC / CPI / NFP / day-before / PPI</div></div>
+     <div class="hm-kpi"><div class="k-label">Normal vs low</div>
+      <div class="k-value">${gap >= 0 ? '+' : ''}${gap} pts</div>
+      <div class="k-note">${allHit ? pct(L.low.hit / allHit) : '0%'} of all high-probability days fell on a low-probability day</div></div>`;
+
+  const order = M.fws.filter(f => !f.neutral && L.low.fw[f.idx] > 0).sort((a,b) => L.low.fw[b.idx] - L.low.fw[a.idx] || a.name.localeCompare(b.name));
+  fwBox.innerHTML = order.length ? order.map(f => {
+    const n = L.low.fw[f.idx];
+    return `<div class="top-fw" style="cursor:default">
+      <div class="rank">${n}</div>
+      <div class="nm"><span class="dot" style="background:${f.color}"></span><span class="t">${esc(f.name)}</span></div>
+      <div class="ct">${L.low.hit ? pct(n / L.low.hit) : '0%'} of low hits</div>
+      <div class="bar"><i style="width:${L.low.hit ? (n / L.low.hit * 100).toFixed(1) : 0}%;background:${f.color}"></i></div>
+      <div class="meta2">On normal days: ${L.norm.fw[f.idx]}</div></div>`;
+  }).join('') : '<div class="hm-foot">No framework appeared on a low-probability day.</div>';
+
+  const tagOrder = ['FOMC','FOMC -1','CPI','CPI -1','NFP','NFP -1','PPI'].filter(t => L.tags.has(t));
+  tagBox.innerHTML = tagOrder.map(t => {
+    const x = L.tags.get(t), r = x.days ? x.hit / x.days : 0;
+    return `<div class="mo-row"><div class="lb">${t}</div><div class="bar"><i style="width:${(r*100).toFixed(0)}%"></i></div>
+      <div class="ct">${x.hit}/${x.days} \u00b7 ${pct(r)}</div></div>`;
+  }).join('') + '<div class="hm-foot">A day with two tags (e.g. CPI -1 and FOMC) counts in each row, but only once in the totals above.</div>';
+}
+
 function render(){
   const meta = document.getElementById('hmMeta');
   const M = buildModel(hmData, hmSolo);
@@ -1312,8 +1434,12 @@ function render(){
   renderTable(M);
   renderTop(M, S);
   renderMonths(M, S);
+  renderLow(M);
+  const tg = document.getElementById('hmLowToggle');
+  tg.textContent = hmHideLow ? 'Low-prob days: hidden' : 'Low-prob days: shown';
+  tg.classList.toggle('active', hmHideLow);
   const g = hmData.generated_at ? new Date(hmData.generated_at) : null;
-  meta.textContent = 'Indices Log \u00b7 AM Framework \u00b7 ' + M.year + (g && !isNaN(g) ? ' \u00b7 data as of ' + g.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '');
+  meta.textContent = 'Indices Log \u00b7 AM Framework \u00b7 ' + M.year + (g && !isNaN(g) ? ' \u00b7 data as of ' + g.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '') + (hmHideLow ? ' \u00b7 low-probability days hidden' : '');
 }
 
 function loadHeatmap(){
@@ -1324,6 +1450,12 @@ function loadHeatmap(){
     .then(render);
 }
 window.loadHeatmap = loadHeatmap;
+
+document.getElementById('hmLowToggle').addEventListener('click', () => {
+  hmHideLow = !hmHideLow;
+  try { localStorage.setItem(LP_KEY, hmHideLow ? '1' : '0'); } catch(e){}
+  render();
+});
 
 render();        // draw instantly from the embedded snapshot
 loadHeatmap();   // then upgrade to am-frameworks.json if it exists
