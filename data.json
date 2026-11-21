@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T13:25:13.426750+00:00",
+  "generated_at": "2026-11-21T13:30:21.712957+00:00",
   "total_trades": 58,
   "total_pnl": 200.69,
   "multi_tagged_trades": 24,
@@ -631,7 +631,7 @@
       ]
     },
     {
-      "name": "10AM H4 Extreme Expansion No Entry",
+      "name": "10AM H4 Extreme Early Expansion No Entry",
       "trades": 1,
       "wins": 0,
       "losses": 1,
