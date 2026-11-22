@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-22T07:40:15.941469+00:00",
+  "generated_at": "2026-11-22T07:45:17.245046+00:00",
   "total_trades": 58,
   "total_pnl": 200.69,
   "multi_tagged_trades": 24,
@@ -366,7 +366,7 @@
       ]
     },
     {
-      "name": "10AM H4 Retracement & Continuation",
+      "name": "10AM H4 EQ Retracement & Continuation",
       "trades": 4,
       "wins": 3,
       "losses": 1,
