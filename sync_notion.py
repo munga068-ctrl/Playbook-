@@ -88,7 +88,30 @@ PROP_LOG_AM_REL = "🟦 AM FRAMEWORK"
 # --- event tags looked for in the Indices Log row Name (title). A day carrying any of
 # these is a "low-probability day" on the dashboard (FOMC/CPI/NFP also flag the day before;
 # that part is worked out in index.html). Matched as whole words, case-insensitive. ---
-LOW_PROB_TAGS = re.compile(r'\b(FOMC|CPI|NFP|PPI|MIDTERMS?|ELECTION|J\.?\s?HOLE|JACKSON HOLE)\b', re.I)
+LOW_PROB_TAGS = re.compile(
+    r'\b(FOMC|CPI|NFP|PPI|MIDTERMS?|ELECTION|J\.?\s?HOLE|JACKSON\s+HOLE)\b', re.I
+)
+# words in a row name that mark it as the DAY BEFORE an event ("CPI -1", "Pre-FOMC", "day before NFP")
+_BEFORE_RE = re.compile(r'(-\s?1\b|\bBEFORE\b|\bPRE\b|\bEVE\b)', re.I)
+
+
+def _event_tags(title):
+    """Canonical low-probability tags found in an Indices Log row name, as a sorted list
+    (e.g. "FOMC + CPI" -> ["CPI", "FOMC"]). If the name marks the row as the day before an
+    event, each tag comes out as "<TAG> -1" so the dashboard does not treat that row as the
+    event day itself."""
+    before = bool(_BEFORE_RE.search(title))
+    out = set()
+    for m in LOW_PROB_TAGS.findall(title):
+        key = re.sub(r"[^A-Z0-9]", "", m.upper())
+        if key in ("JHOLE", "JACKSONHOLE"):
+            label = "J.HOLE"
+        elif key.startswith("MIDTERM"):
+            label = "MIDTERMS"
+        else:
+            label = key
+        out.add(label + (" -1" if before else ""))
+    return sorted(out)
 
 
 def notion_request(path, payload=None):
@@ -158,7 +181,8 @@ def build_heatmap(am_pages, log_ds):
     FRAMEWORK related to it is a 'high-probability day'. Output matches the shape
     index.html reads: frameworks (colour order = creation order, so colours stay
     stable as new frameworks are added), logged dates, per-day framework indexes,
-    and events (days whose Name carries an FOMC / CPI / NFP / PPI tag).
+    and events: [[day, [tags...]], ...] for days whose Name carries a low-probability
+    tag (FOMC / CPI / NFP / PPI / J.HOLE / MIDTERMS / ELECTION).
     """
     ordered = sorted(am_pages, key=lambda p: p.get("created_time", ""))
     frameworks, index = [], {}
@@ -170,7 +194,7 @@ def build_heatmap(am_pages, log_ds):
         index[p["id"]] = len(frameworks)
         frameworks.append(entry)
 
-    logged, by_day, events = set(), defaultdict(set), []
+    logged, by_day, event_days = set(), defaultdict(set), defaultdict(set)
     rel_seen = False
     for page in query_all(log_ds):
         props = page.get("properties", {})
@@ -180,9 +204,8 @@ def build_heatmap(am_pages, log_ds):
             continue
         day = start[:10]
         logged.add(day)
-        title = get_title(page)
-        if any(re.search(r"\b" + tag + r"\b", title, re.I) for tag in LOW_PROB_TAGS):
-            events.append([day, title])
+        for tag in _event_tags(get_title(page)):
+            event_days[day].add(tag)
         rel_prop = _find_prop(props, PROP_LOG_AM_REL, "relation", name_hint="AM FRAMEWORK")
         if rel_prop is not None:
             rel_seen = True
@@ -200,7 +223,7 @@ def build_heatmap(am_pages, log_ds):
         "frameworks": frameworks,
         "logged": sorted(logged),
         "days": [[d, sorted(ix)] for d, ix in sorted(by_day.items()) if ix],
-        "events": sorted(events),
+        "events": [[d, sorted(tags)] for d, tags in sorted(event_days.items())],
     }
 
 
@@ -212,8 +235,14 @@ def sync_heatmap(am_pages):
     try:
         heat = build_heatmap(am_pages, LOG_DS)
     except Exception as e:  # never let the heatmap take down the main trades sync
-        print(f"::warning::Heatmap sync failed, keeping the previous am-frameworks.json: {e}", file=sys.stderr)
+        print(f"::warning::Heatmap sync failed, keeping the previous am-frameworks.json: {e!r}", file=sys.stderr)
         return
+    # tagged days per tag, so the counts can be checked against Notion in the Actions log
+    counts = defaultdict(int)
+    for _, tags in heat["events"]:
+        for t in tags:
+            counts[t] += 1
+    print("Event-tagged days per tag:", dict(sorted(counts.items())) or "none found")
     # only rewrite when the content changed, so quiet days don't create empty commits
     try:
         with open(out_path) as f:
