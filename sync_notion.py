@@ -88,7 +88,7 @@ PROP_LOG_AM_REL = "🟦 AM FRAMEWORK"
 # --- event tags looked for in the Indices Log row Name (title). A day carrying any of
 # these is a "low-probability day" on the dashboard (FOMC/CPI/NFP also flag the day before;
 # that part is worked out in index.html). Matched as whole words, case-insensitive. ---
-LOW_PROB_TAGS = ("FOMC", "CPI", "NFP", "PPI")
+LOW_PROB_TAGS = re.compile(r'\b(FOMC|CPI|NFP|PPI|MIDTERMS?|ELECTION|J\.?\s?HOLE|JACKSON HOLE)\b', re.I)
 
 
 def notion_request(path, payload=None):
