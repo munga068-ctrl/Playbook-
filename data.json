@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-23T17:20:19.113553+00:00",
-  "total_trades": 58,
-  "total_pnl": 200.69,
+  "generated_at": "2026-11-23T17:25:14.062093+00:00",
+  "total_trades": 59,
+  "total_pnl": 133.02,
   "multi_tagged_trades": 24,
-  "attributed_pnl_total": 1771.55,
+  "attributed_pnl_total": 1703.88,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -236,6 +236,10 @@
     {
       "date": "2026-11-19",
       "cum": 200.69
+    },
+    {
+      "date": "2026-11-23",
+      "cum": 133.02
     }
   ],
   "frameworks": [
@@ -651,16 +655,16 @@
     },
     {
       "name": "\u274c No Setup",
-      "trades": 19,
+      "trades": 20,
       "wins": 0,
-      "losses": 19,
+      "losses": 20,
       "be": 0,
       "win_rate": 0.0,
-      "net_pnl": -1064.21,
+      "net_pnl": -1131.88,
       "avg_win": 0,
-      "avg_loss": 56.01,
+      "avg_loss": 56.59,
       "profit_factor": 0.0,
-      "expectancy": -56.01,
+      "expectancy": -56.59,
       "series": [
         {
           "date": "2026-01-07",
@@ -737,6 +741,10 @@
         {
           "date": "2026-11-19",
           "cum": -1064.21
+        },
+        {
+          "date": "2026-11-23",
+          "cum": -1131.88
         }
       ]
     }
