@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-26T04:55:20.008722+00:00",
-  "total_trades": 59,
-  "total_pnl": 133.02,
+  "generated_at": "2026-11-26T05:00:29.837476+00:00",
+  "total_trades": 60,
+  "total_pnl": 116.75,
   "multi_tagged_trades": 24,
-  "attributed_pnl_total": 1703.88,
+  "attributed_pnl_total": 1687.61,
   "overall_series": [
     {
       "date": "2026-01-05",
@@ -240,6 +240,10 @@
     {
       "date": "2026-11-23",
       "cum": 133.02
+    },
+    {
+      "date": "2026-11-25",
+      "cum": 116.75
     }
   ],
   "frameworks": [
@@ -612,6 +616,25 @@
         {
           "date": "2026-05-28",
           "cum": -1.69
+        }
+      ]
+    },
+    {
+      "name": "10AM H4 Open Rally-SB Continuation",
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "be": 0,
+      "win_rate": 0.0,
+      "net_pnl": -16.27,
+      "avg_win": 0,
+      "avg_loss": 16.27,
+      "profit_factor": 0.0,
+      "expectancy": -16.27,
+      "series": [
+        {
+          "date": "2026-11-25",
+          "cum": -16.27
         }
       ]
     },
